@@ -66,6 +66,8 @@ func (r *PathValueExtractor[T]) FromRequest(request *http.Request) error {
 // while maintaining all functionality.
 type PE[T Value] = PathValueExtractor[T]
 
+type FromPath[T Value] = PathValueExtractor[T]
+
 // HeaderValueExtractor implements RequestExtractor for HTTP header values.
 // It extracts and stores header values of a specified type T that implements the Value interface.
 type HeaderValueExtractor[T Value] struct {
@@ -82,6 +84,8 @@ func (r *HeaderValueExtractor[T]) FromRequest(request *http.Request) error {
 // HE is a type alias for HeaderValueExtractor providing a shorter name
 // while maintaining all functionality.
 type HE[T Value] = HeaderValueExtractor[T]
+
+type FromHeader[T Value] = HeaderValueExtractor[T]
 
 // QueryValueExtractor implements RequestExtractor for query parameters.
 // It extracts and stores query values of a specified type T that implements the Value interface.
@@ -100,6 +104,8 @@ func (r *QueryValueExtractor[T]) FromRequest(request *http.Request) error {
 // while maintaining all functionality.
 type QE[T Value] = QueryValueExtractor[T]
 
+type FromQuery[T Value] = QueryValueExtractor[T]
+
 // FormValueExtractor implements RequestExtractor for form values.
 // It extracts and stores form values of a specified type T that implements the Value interface.
 type FormValueExtractor[T Value] struct {
@@ -116,6 +122,8 @@ func (r *FormValueExtractor[T]) FromRequest(request *http.Request) error {
 // FE is a type alias for FormValueExtractor providing a shorter name
 // while maintaining all functionality.
 type FE[T Value] = FormValueExtractor[T]
+
+type FromForm[T Value] = FormValueExtractor[T]
 
 // CookieValueExtractor implements RequestExtractor for cookie values.
 // It extracts and stores cookie values of a specified type T that implements the Value interface.
@@ -137,3 +145,5 @@ func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
 // CE is a type alias for CookieValueExtractor providing a shorter name
 // while maintaining all functionality.
 type CE[T Value] = CookieValueExtractor[T]
+
+type FromCookie[T Value] = CookieValueExtractor[T]
