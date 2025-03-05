@@ -5,6 +5,7 @@ package hx
 import (
 	"context"
 	"net/http"
+	"reflect"
 	"unsafe"
 
 	"github.com/eatmoreapple/hx/binding"
@@ -143,33 +144,66 @@ func (h requestHandler[Request]) call(w http.ResponseWriter, r *http.Request, re
 // asHandlerFunc converts the requestHandler into a standard HandlerFunc.
 // It automatically determines whether to use extraction or binding based on the Request type.
 func (h requestHandler[Request]) asHandlerFunc() HandlerFunc {
-	_, ok := any((*Request)(nil)).(httpx.RequestExtractor)
-	if ok {
+	requestType := reflect.TypeFor[Request]()
+	var isImplementRequestExtractor bool
+
+	// Check if the Request type implements the RequestExtractor interface.
+	if requestType.Kind() != reflect.Pointer {
+		isImplementRequestExtractor = reflect.PointerTo(requestType).Implements(httpx.RequestExtractorType)
+	} else {
+		isImplementRequestExtractor = requestType.Implements(httpx.RequestExtractorType)
+	}
+
+	if isImplementRequestExtractor {
 		return h.extractAndHandle()
 	}
 	return h.bindAndHandle()
 }
 
-// extractAndHandle creates a HandlerFunc that extracts request data using the RequestExtractor interface.
-func (h requestHandler[Request]) extractAndHandle() HandlerFunc {
+// createHandler encapsulates common logic for request handling.
+func (h requestHandler[Request]) createHandler(extractFunc func(any, *http.Request) error) HandlerFunc {
+	requestType := reflect.TypeFor[Request]()
+	isPointer := requestType.Kind() == reflect.Pointer
+
+	// cache request element type
+	var elemType reflect.Type
+	if isPointer {
+		elemType = requestType.Elem()
+	}
+
+	newRequest := func() Request {
+		if isPointer {
+			return reflect.New(elemType).Interface().(Request)
+		}
+		return *new(Request)
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) error {
-		var request Request
-		if err := (any(&request)).(httpx.RequestExtractor).FromRequest(r); err != nil {
+		request := newRequest()
+		bindTarget := any(&request)
+		if isPointer {
+			bindTarget = request
+		}
+
+		if err := extractFunc(bindTarget, r); err != nil {
 			return err
 		}
 		return h.call(w, r, request)
 	}
 }
 
+// extractAndHandle creates a HandlerFunc that extracts request data using the RequestExtractor interface.
+func (h requestHandler[Request]) extractAndHandle() HandlerFunc {
+	return h.createHandler(func(target any, r *http.Request) error {
+		return target.(httpx.RequestExtractor).FromRequest(r)
+	})
+}
+
 // bindAndHandle creates a HandlerFunc that binds request data using the ShouldBind function.
 func (h requestHandler[Request]) bindAndHandle() HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
-		var request Request
-		if err := ShouldBind(r, &request); err != nil {
-			return err
-		}
-		return h.call(w, r, request)
-	}
+	return h.createHandler(func(target any, r *http.Request) error {
+		return ShouldBind(r, target)
+	})
 }
 
 // ShouldBind binds the request data to the given interface.
