@@ -62,10 +62,8 @@ func (r *PathValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// PE is a type alias for PathValueExtractor providing a shorter name
+// FromPath is a type alias for PathValueExtractor providing a shorter name
 // while maintaining all functionality.
-type PE[T Value] = PathValueExtractor[T]
-
 type FromPath[T Value] = PathValueExtractor[T]
 
 // HeaderValueExtractor implements RequestExtractor for HTTP header values.
@@ -81,10 +79,8 @@ func (r *HeaderValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// HE is a type alias for HeaderValueExtractor providing a shorter name
+// FromHeader is a type alias for HeaderValueExtractor providing a shorter name
 // while maintaining all functionality.
-type HE[T Value] = HeaderValueExtractor[T]
-
 type FromHeader[T Value] = HeaderValueExtractor[T]
 
 // QueryValueExtractor implements RequestExtractor for query parameters.
@@ -100,10 +96,8 @@ func (r *QueryValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// QE is a type alias for QueryValueExtractor providing a shorter name
+// FromQuery is a type alias for QueryValueExtractor providing a shorter name
 // while maintaining all functionality.
-type QE[T Value] = QueryValueExtractor[T]
-
 type FromQuery[T Value] = QueryValueExtractor[T]
 
 // FormValueExtractor implements RequestExtractor for form values.
@@ -119,10 +113,8 @@ func (r *FormValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// FE is a type alias for FormValueExtractor providing a shorter name
+// FromForm is a type alias for FormValueExtractor providing a shorter name
 // while maintaining all functionality.
-type FE[T Value] = FormValueExtractor[T]
-
 type FromForm[T Value] = FormValueExtractor[T]
 
 // CookieValueExtractor implements RequestExtractor for cookie values.
@@ -142,8 +134,6 @@ func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// CE is a type alias for CookieValueExtractor providing a shorter name
+// FromCookie is a type alias for CookieValueExtractor providing a shorter name
 // while maintaining all functionality.
-type CE[T Value] = CookieValueExtractor[T]
-
 type FromCookie[T Value] = CookieValueExtractor[T]

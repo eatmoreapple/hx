@@ -27,9 +27,10 @@ package main
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/eatmoreapple/hx"
 	"github.com/eatmoreapple/hx/httpx"
-	"net/http"
 )
 
 type Router string
@@ -45,9 +46,9 @@ func (u Ua) ValueName() string {
 }
 
 type User struct {
-	Name string           `json:"name" form:"name"` // extract from request query
-	Id   httpx.PE[Router] `json:"id"`               // extract from request path
-	Ua   httpx.HE[Ua]     `json:"ua"`               // extract from request header
+	Name string                 `json:"name" form:"name"` // extract from request query
+	Id   httpx.FromPath[Router] `json:"id"`               // extract from request path
+	Ua   httpx.FromHeader[Ua]   `json:"ua"`               // extract from request header
 }
 
 func app(ctx context.Context, extractor User) (any, error) {
