@@ -36,15 +36,8 @@ func (g GenericBinder) Bind(r *http.Request, a any) error {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 
-		var isImplementedRequestExtractor bool
 		isPointer := field.Kind() == reflect.Ptr
-
-		// Check if the field (or its pointer type) implements the `httpx.RequestExtractor` interface.
-		if isPointer {
-			isImplementedRequestExtractor = field.Type().Implements(httpx.RequestExtractorType)
-		} else {
-			isImplementedRequestExtractor = reflect.PointerTo(field.Type()).Implements(httpx.RequestExtractorType)
-		}
+		isImplementedRequestExtractor := httpx.IsRequestExtractorType(field.Type())
 
 		// If the field implements `httpx.RequestExtractor`, process it.
 		if isImplementedRequestExtractor {
