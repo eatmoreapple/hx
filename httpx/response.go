@@ -26,7 +26,7 @@ type JSONResponse struct {
 // IntoResponse implements ResponseRender for JSON responses.
 // It sets the appropriate content type, status code, and encodes the data as JSON.
 func (j JSONResponse) IntoResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(cmp.Or(j.StatusCode, http.StatusOK))
 	return json.NewEncoder(w).Encode(j.Data)
 }
@@ -41,7 +41,7 @@ type XMLResponse struct {
 // IntoResponse implements ResponseRender for XML responses.
 // It sets the appropriate content type, status code, and encodes the data as XML.
 func (x XMLResponse) IntoResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/xml")
+	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	w.WriteHeader(cmp.Or(x.StatusCode, http.StatusOK))
 	return xml.NewEncoder(w).Encode(x.Data)
 }
@@ -56,7 +56,7 @@ type StringResponse struct {
 // IntoResponse implements ResponseRender for string responses.
 // It sets the appropriate content type, status code, and writes the string data.
 func (s StringResponse) IntoResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(cmp.Or(s.StatusCode, http.StatusOK))
 	_, err := io.WriteString(w, s.Data)
 	return err
@@ -73,7 +73,7 @@ type HTMLResponse struct {
 // IntoResponse implements ResponseRender for HTML responses.
 // It sets the appropriate content type, status code, and executes the template with the provided data.
 func (h HTMLResponse) IntoResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "text/html")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(cmp.Or(h.StatusCode, http.StatusOK))
 	return h.Template.Execute(w, h.Data)
 }
