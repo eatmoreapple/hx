@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"sync"
 )
 
 // RequestExtractor defines the interface for types that can extract data from HTTP requests.
@@ -18,14 +19,28 @@ type RequestExtractor interface {
 // This is useful for runtime type checking and reflection-based operations.
 var RequestExtractorType = reflect.TypeOf((*RequestExtractor)(nil)).Elem()
 
-// IsRequestExtractorType checks if the given type implements the RequestExtractor interface.
-// If the type is not a pointer, it creates a pointer to the type and then checks
-// if the resulting type implements the RequestExtractor interface.
-func IsRequestExtractorType(t reflect.Type) bool {
+// implementsRequestExtractorTypeMap is a synchronized map used to cache the results of whether a given type implements the RequestExtractor interface.
+// The key is the reflect.Type, and the value is a boolean indicating whether the type implements the interface.
+var implementsRequestExtractorTypeMap = sync.Map{}
+
+func isRequestExtractorType(t reflect.Type) bool {
 	if t.Kind() != reflect.Ptr {
 		t = reflect.PointerTo(t)
 	}
 	return t.Implements(RequestExtractorType)
+}
+
+// IsRequestExtractorType checks if the given type implements the RequestExtractor interface.
+// If the type is not a pointer, it creates a pointer to the type and then checks
+// if the resulting type implements the RequestExtractor interface.
+func IsRequestExtractorType(t reflect.Type) bool {
+	if value, exists := implementsRequestExtractorTypeMap.Load(t); exists {
+		return value.(bool)
+	}
+
+	result := isRequestExtractorType(t)
+	implementsRequestExtractorTypeMap.Store(t, result)
+	return result
 }
 
 // Value is an interface for types that can be used as path parameters.
@@ -150,7 +165,7 @@ func (b baseValueExtractor[T]) String() string {
 
 // FromRequest is a placeholder implementation that should be overridden by embedding types.
 // It will panic if called directly.
-func (b *baseValueExtractor[T]) FromRequest(request *http.Request) error {
+func (b *baseValueExtractor[T]) FromRequest(*http.Request) error {
 	panic("not implemented")
 }
 
