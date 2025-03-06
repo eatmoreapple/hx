@@ -42,7 +42,15 @@ func G[Request, Response any](h TypedHandlerFunc[Request, Response]) TypedHandle
 	return Generic(h)
 }
 
-func WithRenderer[Request any](h TypedHandlerFunc[Request, httpx.ResponseRender]) HandlerFunc {
+// Render is a generic handler function that processes requests of type Request
+// and returns responses of type httpx.ResponseRender. It operates within a context and may return an error.
+//
+// Example:
+//
+//	handler := Renderer[UserRequest](func(ctx context.Context, req UserRequest) (httpx.ResponseRender, error) {
+//	    return httpx.JSONResponse{Data: req}, nil
+//	})
+func Render[Request any](h TypedHandlerFunc[Request, httpx.ResponseRender]) HandlerFunc {
 	var handler requestHandler[Request] = func(ctx context.Context, req Request) (httpx.ResponseRender, error) {
 		responseRender, err := h(ctx, req)
 		if err != nil {
@@ -53,10 +61,10 @@ func WithRenderer[Request any](h TypedHandlerFunc[Request, httpx.ResponseRender]
 	return handler.asHandlerFunc()
 }
 
-// R is a shortcut for WithRenderer function.
-// It provides the same functionality as WithRenderer but with a more concise name.
+// R is a shortcut for Renderer function.
+// It provides the same functionality as Renderer but with a more concise name.
 func R[Request any](h TypedHandlerFunc[Request, httpx.ResponseRender]) HandlerFunc {
-	return WithRenderer(h)
+	return Render(h)
 }
 
 // TypedHandlerFunc is a generic handler function that processes requests of type Request
