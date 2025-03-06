@@ -18,6 +18,16 @@ type RequestExtractor interface {
 // This is useful for runtime type checking and reflection-based operations.
 var RequestExtractorType = reflect.TypeOf((*RequestExtractor)(nil)).Elem()
 
+// IsRequestExtractorType checks if the given type implements the RequestExtractor interface.
+// If the type is not a pointer, it creates a pointer to the type and then checks
+// if the resulting type implements the RequestExtractor interface.
+func IsRequestExtractorType(t reflect.Type) bool {
+	if t.Kind() != reflect.Ptr {
+		t = reflect.PointerTo(t)
+	}
+	return t.Implements(RequestExtractorType)
+}
+
 // Value is an interface for types that can be used as path parameters.
 // It combines the PathValueName method with the constraint of being a string type.
 type Value interface {

@@ -144,15 +144,7 @@ func (h requestHandler[Request]) call(w http.ResponseWriter, r *http.Request, re
 // asHandlerFunc converts the requestHandler into a standard HandlerFunc.
 // It automatically determines whether to use extraction or binding based on the Request type.
 func (h requestHandler[Request]) asHandlerFunc() HandlerFunc {
-	requestType := reflect.TypeFor[Request]()
-	var isImplementRequestExtractor bool
-
-	// Check if the Request type implements the RequestExtractor interface.
-	if requestType.Kind() != reflect.Pointer {
-		isImplementRequestExtractor = reflect.PointerTo(requestType).Implements(httpx.RequestExtractorType)
-	} else {
-		isImplementRequestExtractor = requestType.Implements(httpx.RequestExtractorType)
-	}
+	isImplementRequestExtractor := httpx.IsRequestExtractorType(reflect.TypeFor[Request]())
 
 	if isImplementRequestExtractor {
 		return h.extractAndHandle()
