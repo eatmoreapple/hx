@@ -23,28 +23,6 @@ type ErrorHandler func(w http.ResponseWriter, r *http.Request, err error)
 // If an error is returned, it will be passed to the ErrorHandler for processing.
 type HandlerFunc func(w http.ResponseWriter, r *http.Request) error
 
-// Middleware represents a function that wraps a HandlerFunc and returns a new HandlerFunc.
-// It can be used to add common functionality like logging, authentication, etc.
-type Middleware func(HandlerFunc) HandlerFunc
-
-// Chain combines multiple middleware into a single middleware.
-// Middleware will be executed in the order they are passed.
-// Example:
-//
-//	handler := Chain(
-//	    LoggerMiddleware,
-//	    AuthMiddleware,
-//	    TimeoutMiddleware,
-//	)(finalHandler)
-func Chain(middlewares ...Middleware) Middleware {
-	return func(next HandlerFunc) HandlerFunc {
-		for i := len(middlewares) - 1; i >= 0; i-- {
-			next = middlewares[i](next)
-		}
-		return next
-	}
-}
-
 // Generic creates a type-safe handler with specified Request and Response types.
 // It's a type assertion function that ensures the handler conforms to the TypedHandlerFunc interface.
 // This function is particularly useful when you want to explicitly declare the types of your handler
