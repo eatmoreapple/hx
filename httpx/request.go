@@ -257,3 +257,8 @@ func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
 // FromCookie is a type alias for CookieValueExtractor providing a shorter name
 // while maintaining all functionality.
 type FromCookie[T Value] = CookieValueExtractor[T]
+
+// Empty is a no-op implementation of RequestExtractor.
+type Empty struct{}
+
+func (e Empty) FromRequest(*http.Request) error { return nil }
