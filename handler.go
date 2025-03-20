@@ -67,6 +67,14 @@ func R[Request any](h TypedHandlerFunc[Request, httpx.ResponseRender]) HandlerFu
 	return Render(h)
 }
 
+// E is a convenience function for creating a handler that doesn't require any request data.
+// It takes a function that accepts a context and returns a response of type Response.
+func E[Response any](h func(ctx context.Context) (Response, error)) TypedHandlerFunc[httpx.Empty, Response] {
+	return func(ctx context.Context, req httpx.Empty) (Response, error) {
+		return h(ctx)
+	}
+}
+
 // TypedHandlerFunc is a generic handler function that processes requests of type Request
 // and returns responses of type Response. It operates within a context and may return an error.
 type TypedHandlerFunc[Request, Response any] func(context.Context, Request) (Response, error)
