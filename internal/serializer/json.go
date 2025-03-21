@@ -43,15 +43,15 @@ func (s *StdJSONSerializer) Deserialize(r io.Reader, v any) error {
 	return json.NewDecoder(r).Decode(v)
 }
 
-// stdJSONSerializer is a singleton instance of StdJSONSerializer.
+// jsonSerializerInstance is a singleton instance of StdJSONSerializer.
 // This instance is used as the default JSON serializer for the package.
-var stdJSONSerializer Serializer = &StdJSONSerializer{}
+var jsonSerializerInstance Serializer = &StdJSONSerializer{}
 
 // JSONSerializer returns a singleton instance of StdJSONSerializer
 // that implements the Serializer interface using the standard JSON library.
 // This function provides a convenient way to access the default JSON serializer.
 func JSONSerializer() Serializer {
-	return stdJSONSerializer
+	return jsonSerializerInstance
 }
 
 // SetJSONSerializer sets the global JSON serializer instance to the provided serializer s.
@@ -62,5 +62,5 @@ func SetJSONSerializer(s Serializer) {
 	if s == nil {
 		panic("serializer cannot be nil")
 	}
-	stdJSONSerializer = s
+	jsonSerializerInstance = s
 }
