@@ -3,11 +3,12 @@ package httpx
 
 import (
 	"cmp"
-	"encoding/json"
 	"encoding/xml"
 	"html/template"
 	"io"
 	"net/http"
+	
+	"github.com/eatmoreapple/hx/internal/serializer"
 )
 
 // ResponseRender defines the interface for types that can render themselves as HTTP responses.
@@ -28,7 +29,7 @@ type JSONResponse struct {
 func (j JSONResponse) IntoResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(cmp.Or(j.StatusCode, http.StatusOK))
-	return json.NewEncoder(w).Encode(j.Data)
+	return serializer.JSONSerializer().Serialize(j.Data, w)
 }
 
 // XMLResponse represents an XML response with data and status code.

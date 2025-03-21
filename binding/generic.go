@@ -1,9 +1,10 @@
 package binding
 
 import (
-	"github.com/eatmoreapple/hx/httpx"
 	"net/http"
 	"reflect"
+
+	"github.com/eatmoreapple/hx/httpx"
 )
 
 // GenericBinder is a utility for binding HTTP request data to a struct.
