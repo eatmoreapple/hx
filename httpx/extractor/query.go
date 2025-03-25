@@ -18,10 +18,6 @@ func (r *QueryValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// FromQuery is a type alias for QueryValueExtractor providing a shorter name
-// while maintaining all functionality.
-type FromQuery[T Value] = QueryValueExtractor[T]
-
 // QueryExtractor is a type alias for http.URL.Query providing a shorter name
 // while maintaining all functionality.
 type QueryExtractor url.Values

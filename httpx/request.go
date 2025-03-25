@@ -53,43 +53,36 @@ func IsRequestExtractorType(t reflect.Type) bool {
 // These provide convenient access to the underlying extractor implementations
 // while maintaining the package's cohesive API.
 type (
-	// PathValueExtractor extracts values from URL path parameters
-	PathValueExtractor[T extractor.Value] = extractor.PathValueExtractor[T]
 	// FromPath is a shorthand for PathValueExtractor
-	FromPath[T extractor.Value] = extractor.FromPath[T]
+	FromPath[T extractor.Value] = extractor.PathValueExtractor[T]
 
-	// HeaderValueExtractor extracts values from HTTP headers
-	HeaderValueExtractor[T extractor.Value] = extractor.HeaderValueExtractor[T]
 	// FromHeader is a shorthand for HeaderValueExtractor
-	FromHeader[T extractor.Value] = extractor.FromHeader[T]
+	FromHeader[T extractor.Value] = extractor.HeaderValueExtractor[T]
 
-	// QueryValueExtractor extracts values from URL query parameters
-	QueryValueExtractor[T extractor.Value] = extractor.QueryValueExtractor[T]
 	// FromQuery is a shorthand for QueryValueExtractor
-	FromQuery[T extractor.Value] = extractor.FromQuery[T]
+	FromQuery[T extractor.Value] = extractor.QueryValueExtractor[T]
 
-	// FormValueExtractor extracts values from form submissions
-	FormValueExtractor[T extractor.Value] = extractor.FormValueExtractor[T]
 	// FromForm is a shorthand for FormValueExtractor
-	FromForm[T extractor.Value] = extractor.FromForm[T]
+	FromForm[T extractor.Value] = extractor.FormValueExtractor[T]
 
-	// CookieValueExtractor extracts values from HTTP cookies
-	CookieValueExtractor[T extractor.Value] = extractor.CookieValueExtractor[T]
 	// FromCookie is a shorthand for CookieValueExtractor
-	FromCookie[T extractor.Value] = extractor.FromCookie[T]
+	FromCookie[T extractor.Value] = extractor.CookieValueExtractor[T]
 )
 
 // Additional type aliases for complete extractors that handle
 // collections of values rather than single named values.
 type (
-	// HeaderExtractor provides access to all HTTP headers in a request
-	HeaderExtractor = extractor.HeaderExtractor
-	// CookieExtractor provides access to all cookies in a request
-	CookieExtractor = extractor.CookieExtractor
-	// QueryExtractor provides access to all query parameters in a request
-	QueryExtractor = extractor.QueryExtractor
-	// FormExtractor provides access to all form values in a request
-	FormExtractor = extractor.FormExtractor
+	// Header provides access to all HTTP headers in a request
+	Header = extractor.HeaderExtractor
+
+	// Cookies provides access to all cookies in a request
+	Cookies = extractor.CookieExtractor
+
+	// Query provides access to all query parameters in a request
+	Query = extractor.QueryExtractor
+
+	// Form provides access to all form values in a request
+	Form = extractor.FormExtractor
 )
 
 // Empty is a no-op extractor that always succeeds without extracting any values.

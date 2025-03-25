@@ -10,4 +10,4 @@ type RequestExtractor interface {
 
 type Empty struct{}
 
-func (e Empty) FromRequest(*http.Request) error { return nil }
+func (e *Empty) FromRequest(*http.Request) error { return nil }

@@ -19,10 +19,6 @@ func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// FromCookie is a type alias for CookieValueExtractor providing a shorter name
-// while maintaining all functionality.
-type FromCookie[T Value] = CookieValueExtractor[T]
-
 type CookieExtractor []*http.Cookie
 
 func (r *CookieExtractor) FromRequest(request *http.Request) error {

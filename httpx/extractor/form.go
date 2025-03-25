@@ -18,10 +18,6 @@ func (r *FormValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// FromForm is a type alias for FormValueExtractor providing a shorter name
-// while maintaining all functionality.
-type FromForm[T Value] = FormValueExtractor[T]
-
 // FormExtractor is a type alias for http.Request.Form
 type FormExtractor url.Values
 

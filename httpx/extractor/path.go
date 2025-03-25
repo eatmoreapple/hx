@@ -14,7 +14,3 @@ func (r *PathValueExtractor[T]) FromRequest(request *http.Request) error {
 	r.value = T(request.PathValue(r.value.ValueName()))
 	return nil
 }
-
-// FromPath is a type alias for PathValueExtractor providing a shorter name
-// while maintaining all functionality.
-type FromPath[T Value] = PathValueExtractor[T]

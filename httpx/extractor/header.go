@@ -15,10 +15,6 @@ func (r *HeaderValueExtractor[T]) FromRequest(request *http.Request) error {
 	return nil
 }
 
-// FromHeader is a type alias for HeaderValueExtractor providing a shorter name
-// while maintaining all functionality.
-type FromHeader[T Value] = HeaderValueExtractor[T]
-
 type HeaderExtractor http.Header
 
 func (r *HeaderExtractor) FromRequest(request *http.Request) error {
