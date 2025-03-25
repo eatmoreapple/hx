@@ -23,6 +23,14 @@ type ErrorHandler func(w http.ResponseWriter, r *http.Request, err error)
 // If an error is returned, it will be passed to the ErrorHandler for processing.
 type HandlerFunc func(w http.ResponseWriter, r *http.Request) error
 
+// Warp is a convenience function that wraps an http.HandlerFunc into a HandlerFunc.
+func Warp(h http.HandlerFunc) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		h(w, r)
+		return nil
+	}
+}
+
 // Generic creates a type-safe handler with specified Request and Response types.
 // It's a type assertion function that ensures the handler conforms to the TypedHandlerFunc interface.
 // This function is particularly useful when you want to explicitly declare the types of your handler
