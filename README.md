@@ -75,6 +75,9 @@ You should see a response like:
 }
 ```
 
+## Documentation
+
+📖 **[English Documentation](https://hx.readthedocs.io/en/latest/)** | **[简体中文文档](https://hx.readthedocs.io/zh_CN/latest/)**
 
 ## License
 
