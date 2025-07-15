@@ -5,10 +5,11 @@ build:
   tools:
     python: "3.11"
   jobs:
-    pre_build:
-      - pip install -r docs/requirements.txt
     post_build:
-      - python docs/complete_translate.py
+      - python3 docs/complete_translate.py
+      - cd docs && make -e SPHINXOPTS="-D language='zh_CN'" html
+      - mkdir -p $READTHEDOCS_OUTPUT/html/zh_CN || true
+      - cp -r docs/_build/html/* $READTHEDOCS_OUTPUT/html/zh_CN/ || true
 
 sphinx:
   configuration: docs/conf.py
@@ -16,7 +17,6 @@ sphinx:
 
 formats:
   - pdf
-  - htmlzip
 
 python:
   install:

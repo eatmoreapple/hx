@@ -68,6 +68,9 @@ html_context = {
         ('zh_CN', '中文'),
     ],
     'language_links': True,
+    # ReadTheDocs specific
+    'current_version': 'latest',
+    'versions': [('latest', 'latest')],
 }
 
 # -- Options for LaTeX output ------------------------------------------------
