@@ -17,23 +17,33 @@ function switchLanguage() {
         pathWithoutLang = currentPath.replace('/en/', '/');
     }
     
-    // Construct new URL based on selected language
-    var newPath;
-    if (lang === 'en') {
-        // For ReadTheDocs, English is usually the default
-        newPath = '/en' + pathWithoutLang;
-    } else if (lang === 'zh_CN') {
-        newPath = '/zh_CN' + pathWithoutLang;
-    }
-    
     // Handle local development vs production
     var baseUrl = window.location.origin;
+    var newPath;
+    
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        // Local development - different structure
+        // Local development - English at root, Chinese in /zh_CN/
         if (lang === 'en') {
-            newPath = '/en' + pathWithoutLang;
-        } else {
+            newPath = pathWithoutLang;
+        } else if (lang === 'zh_CN') {
             newPath = '/zh_CN' + pathWithoutLang;
+        }
+    } else {
+        // ReadTheDocs production - handle both structures
+        if (window.location.hostname.includes('readthedocs.io')) {
+            // ReadTheDocs structure
+            if (lang === 'en') {
+                newPath = '/en/latest' + pathWithoutLang;
+            } else if (lang === 'zh_CN') {
+                newPath = '/zh_CN/latest' + pathWithoutLang;
+            }
+        } else {
+            // Generic production
+            if (lang === 'en') {
+                newPath = pathWithoutLang;
+            } else if (lang === 'zh_CN') {
+                newPath = '/zh_CN' + pathWithoutLang;
+            }
         }
     }
     
