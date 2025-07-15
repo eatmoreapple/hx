@@ -4,13 +4,9 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
-  commands:
-    # Apply translations first
-    - python3 docs/complete_translate.py
-    # Build English version
-    - cd docs && sphinx-build -b html . _build/html
-    # Build Chinese version to separate directory  
-    - cd docs && sphinx-build -b html -D language='zh_CN' . _build/html/zh_CN
+  jobs:
+    pre_build:
+      - cd docs && python3 rtd_translate.py
 
 sphinx:
   configuration: docs/conf.py
