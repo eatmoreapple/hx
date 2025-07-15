@@ -1,0 +1,77 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: HX \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-15 10:32+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:6
+msgid "内容:"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:2
+msgid "HX 中文文档"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:4
+msgid "欢迎使用 HX，一个轻量级、灵活的 Go HTTP 框架，可简化请求处理和数据提取。"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:17
+msgid "特性"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:19
+msgid "🚀 **轻量快速** - 最小开销，最大性能"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:20
+msgid "💪 **类型安全的请求数据提取** - 请求处理的编译时安全性"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:21
+msgid "🔄 **自动请求绑定** - 来自各种来源的无缝数据绑定"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:22
+msgid "🛠 **可扩展设计** - 易于扩展和自定义"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:25
+msgid "要求"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:27
+msgid "Go 1.24 或更高版本"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:30
+msgid "索引和表格"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:32
+msgid ":ref:`genindex`"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:33
+msgid ":ref:`modindex`"
+msgstr ""
+
+#: ../../locale/zh_CN/LC_MESSAGES/index.rst:34
+msgid ":ref:`search`"
+msgstr ""
+

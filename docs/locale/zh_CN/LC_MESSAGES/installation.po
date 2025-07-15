@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HX 
+"
+"Report-Msgid-Bugs-To: 
+"
+"POT-Creation-Date: 2025-07-15 10:39+0800
+"
+"PO-Revision-Date: 2025-07-15 10:30+0800
+"
+"Last-Translator: eatmoreapple <dev@example.com>
+"
+"Language: zh_CN
+"
+"Language-Team: zh_CN
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"Generated-By: Babel 2.17.0
+"
+
+#: ../../installation.rst:2
+msgid "Installation"
+msgstr "安装"
+
+#: ../../installation.rst:5
+msgid "Requirements"
+msgstr "要求"
+
+#: ../../installation.rst:7
+msgid "HX requires Go 1.24 or higher."
+msgstr "HX 需要 Go 1.24 或更高版本。"
+
+#: ../../installation.rst:10
+msgid "Installing HX"
+msgstr "安装 HX"
+
+#: ../../installation.rst:12
+msgid "To install HX, use ``go get``:"
+msgstr "要安装 HX，请使用 ``go get``："
+
+#: ../../installation.rst:18
+msgid "Import HX in your Go code:"
+msgstr "在您的 Go 代码中导入 HX："
+
+#: ../../installation.rst:25
+msgid "Verifying Installation"
+msgstr "验证安装"
+
+#: ../../installation.rst:27
+msgid "Create a simple test file to verify your installation:"
+msgstr "创建一个简单的测试文件来验证您的安装："
+
+#: ../../installation.rst:54
+msgid ""
+"Run the file and visit http://localhost:8080/hello to see if HX is "
+"working correctly."
+msgstr ""
+

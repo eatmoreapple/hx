@@ -1,0 +1,86 @@
+/* Language switcher styles */
+.language-switcher {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1001;
+    background: #2980B9;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.language-switcher:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transform: translateY(-1px);
+}
+
+.language-switcher select {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.language-switcher select:hover {
+    border-color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.1);
+}
+
+.language-switcher select:focus {
+    outline: none;
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+.language-switcher select option {
+    background: #2980B9;
+    color: white;
+    padding: 4px 8px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .language-switcher {
+        top: 5px;
+        right: 5px;
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .language-switcher select {
+        font-size: 12px;
+        padding: 3px 6px;
+    }
+}
+
+/* RTD theme integration */
+.wy-nav-top {
+    position: relative;
+}
+
+/* Ensure language switcher appears above all content */
+.language-switcher {
+    position: fixed !important;
+    z-index: 9999 !important;
+}
+
+/* Additional styles for better visibility */
+@media (max-width: 480px) {
+    .language-switcher {
+        top: 50px; /* Move down on very small screens to avoid header overlap */
+        right: 5px;
+    }
+}
+
+/* Hide on print */
+@media print {
+    .language-switcher {
+        display: none !important;
+    }
+}

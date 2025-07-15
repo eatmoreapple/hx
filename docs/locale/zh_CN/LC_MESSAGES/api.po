@@ -1,0 +1,347 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HX 
+"
+"Report-Msgid-Bugs-To: 
+"
+"POT-Creation-Date: 2025-07-15 10:39+0800
+"
+"PO-Revision-Date: 2025-07-15 10:30+0800
+"
+"Last-Translator: eatmoreapple <dev@example.com>
+"
+"Language: zh_CN
+"
+"Language-Team: zh_CN
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"Generated-By: Babel 2.17.0
+"
+
+#: ../../api.rst:2
+msgid "API Reference"
+msgstr "API 参考"
+
+#: ../../api.rst:4
+msgid "This section provides detailed documentation for all HX components."
+msgstr "本节为所有 HX 组件提供详细文档。"
+
+#: ../../api.rst:7
+msgid "Core Types"
+msgstr "核心类型"
+
+#: ../../api.rst:10
+msgid "Router"
+msgstr "路由器"
+
+#: ../../api.rst:19
+msgid "The main router that handles HTTP request routing and middleware."
+msgstr "处理 HTTP 请求路由和中间件的主路由器。"
+
+#: ../../api.rst:21 ../../api.rst:59
+msgid "**Methods:**"
+msgstr ""
+
+#: ../../api.rst:23
+msgid "``New(options ...RouterOption) *Router`` - Creates a new router"
+msgstr ""
+
+#: ../../api.rst:24
+msgid "``Group(prefix string) *Router`` - Creates a route group with path prefix"
+msgstr ""
+
+#: ../../api.rst:25
+msgid "``Use(middleware ...Middleware)`` - Adds middleware to the router"
+msgstr ""
+
+#: ../../api.rst:26
+msgid "``Handle(method, path string, handler HandlerFunc)`` - Registers a route"
+msgstr ""
+
+#: ../../api.rst:27
+msgid ""
+"``GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD(path string, handler "
+"HandlerFunc)`` - HTTP method shortcuts"
+msgstr ""
+
+#: ../../api.rst:29 ../../api.rst:78 ../../api.rst:107 ../../api.rst:131
+#: ../../api.rst:259 ../../api.rst:293 ../../api.rst:364
+msgid "**Example:**"
+msgstr ""
+
+#: ../../api.rst:42
+msgid "HandlerFunc"
+msgstr ""
+
+#: ../../api.rst:48
+msgid "Standard handler function type that returns an error instead of void."
+msgstr "返回错误而不是 void 的标准处理器函数类型。"
+
+#: ../../api.rst:51
+msgid "TypedHandlerFunc"
+msgstr ""
+
+#: ../../api.rst:57
+msgid "Generic handler function with type-safe request and response handling."
+msgstr "具有类型安全请求和响应处理的通用处理器函数。"
+
+#: ../../api.rst:61
+msgid "``JSON() HandlerFunc`` - Converts to JSON response handler"
+msgstr ""
+
+#: ../../api.rst:62
+msgid ""
+"``String() HandlerFunc`` - Converts to string response handler (Response "
+"must be string)"
+msgstr ""
+
+#: ../../api.rst:63
+msgid "``XML() HandlerFunc`` - Converts to XML response handler"
+msgstr ""
+
+#: ../../api.rst:66
+msgid "Handler Creation Functions"
+msgstr "处理器创建函数"
+
+#: ../../api.rst:69
+msgid "Generic / G"
+msgstr ""
+
+#: ../../api.rst:76
+msgid "Creates a type-safe handler with specified Request and Response types."
+msgstr "创建具有指定请求和响应类型的类型安全处理器。"
+
+#: ../../api.rst:89
+msgid "Render / R"
+msgstr ""
+
+#: ../../api.rst:96
+msgid ""
+"Creates a handler that returns a ResponseRender for custom response "
+"handling."
+msgstr ""
+
+#: ../../api.rst:99
+msgid "E"
+msgstr ""
+
+#: ../../api.rst:105
+msgid "Convenience function for handlers that don't require request data."
+msgstr "不需要请求数据的处理器的便利函数。"
+
+#: ../../api.rst:118
+msgid "Request Extraction"
+msgstr ""
+
+#: ../../api.rst:120
+msgid ""
+"The ``httpx`` package provides types for extracting data from different "
+"parts of HTTP requests."
+msgstr ""
+
+#: ../../api.rst:123
+msgid "FromPath"
+msgstr ""
+
+#: ../../api.rst:129
+msgid "Extracts values from URL path parameters."
+msgstr "从 URL 路径参数中提取值。"
+
+#: ../../api.rst:145
+msgid "FromQuery"
+msgstr ""
+
+#: ../../api.rst:151
+msgid "Extracts values from URL query parameters."
+msgstr "从 URL 查询参数中提取值。"
+
+#: ../../api.rst:154
+msgid "FromHeader"
+msgstr ""
+
+#: ../../api.rst:160
+msgid "Extracts values from HTTP headers."
+msgstr "从 HTTP 请求头中提取值。"
+
+#: ../../api.rst:163
+msgid "FromForm"
+msgstr ""
+
+#: ../../api.rst:169
+msgid "Extracts values from form data."
+msgstr "从表单数据中提取值。"
+
+#: ../../api.rst:172
+msgid "FromCookie"
+msgstr ""
+
+#: ../../api.rst:178
+msgid "Extracts values from HTTP cookies."
+msgstr "从 HTTP cookies 中提取值。"
+
+#: ../../api.rst:181
+msgid "ValueNamer Interface"
+msgstr ""
+
+#: ../../api.rst:189
+msgid "Interface that extraction types must implement to specify the field name."
+msgstr "提取类型必须实现的接口，用于指定字段名称。"
+
+#: ../../api.rst:192
+msgid "Response Types"
+msgstr "响应类型"
+
+#: ../../api.rst:195
+msgid "ResponseRender Interface"
+msgstr ""
+
+#: ../../api.rst:203
+msgid "Interface for custom response rendering."
+msgstr "自定义响应渲染的接口。"
+
+#: ../../api.rst:206
+msgid "JSONResponse"
+msgstr ""
+
+#: ../../api.rst:214
+msgid "Renders response as JSON."
+msgstr "将响应渲染为 JSON。"
+
+#: ../../api.rst:217
+msgid "StringResponse"
+msgstr ""
+
+#: ../../api.rst:225
+msgid "Renders response as plain text."
+msgstr "将响应渲染为纯文本。"
+
+#: ../../api.rst:228
+msgid "XMLResponse"
+msgstr ""
+
+#: ../../api.rst:236
+msgid "Renders response as XML."
+msgstr "将响应渲染为 XML。"
+
+#: ../../api.rst:239
+msgid "Middleware"
+msgstr "中间件"
+
+#: ../../api.rst:242
+msgid "Middleware Type"
+msgstr ""
+
+#: ../../api.rst:248
+msgid "Function type for middleware that wraps handlers."
+msgstr "包装处理器的中间件的函数类型。"
+
+#: ../../api.rst:251
+msgid "Chain"
+msgstr ""
+
+#: ../../api.rst:257
+msgid "Chains multiple middleware functions together."
+msgstr "将多个中间件函数链接在一起。"
+
+#: ../../api.rst:273
+msgid "Router Options"
+msgstr "路由器选项"
+
+#: ../../api.rst:276
+msgid "WithErrorHandler"
+msgstr ""
+
+#: ../../api.rst:282
+msgid "Sets a custom error handler for the router."
+msgstr "为路由器设置自定义错误处理器。"
+
+#: ../../api.rst:285
+msgid "WithMiddleware"
+msgstr ""
+
+#: ../../api.rst:291
+msgid "Adds middleware to the router during creation."
+msgstr "在创建期间向路由器添加中间件。"
+
+#: ../../api.rst:303
+msgid "Binding"
+msgstr "绑定"
+
+#: ../../api.rst:306
+msgid "ShouldBind"
+msgstr ""
+
+#: ../../api.rst:312
+msgid ""
+"Binds request data to the given interface using appropriate binders based"
+" on Content-Type."
+msgstr ""
+
+#: ../../api.rst:315
+msgid "Binder Interface"
+msgstr ""
+
+#: ../../api.rst:323
+msgid "Interface for request data binding implementations."
+msgstr "请求数据绑定实现的接口。"
+
+#: ../../api.rst:325
+msgid "Available binders:"
+msgstr "可用的绑定器："
+
+#: ../../api.rst:327
+msgid "``JSONBinder`` - Binds JSON request bodies"
+msgstr ""
+
+#: ../../api.rst:328
+msgid "``XMLBinder`` - Binds XML request bodies"
+msgstr ""
+
+#: ../../api.rst:329
+msgid "``FormBinder`` - Binds form data (multipart and URL-encoded)"
+msgstr ""
+
+#: ../../api.rst:330
+msgid "``QueryBinder`` - Binds URL query parameters"
+msgstr ""
+
+#: ../../api.rst:333
+msgid "Error Handling"
+msgstr "错误处理"
+
+#: ../../api.rst:336
+msgid "ErrorHandler"
+msgstr ""
+
+#: ../../api.rst:342
+msgid "Function type for handling errors returned by handlers."
+msgstr "处理由处理器返回的错误的函数类型。"
+
+#: ../../api.rst:344
+msgid "**Default Error Handler:**"
+msgstr ""
+
+#: ../../api.rst:353
+msgid "Utilities"
+msgstr "工具"
+
+#: ../../api.rst:356
+msgid "Warp"
+msgstr ""
+
+#: ../../api.rst:362
+msgid "Wraps a standard ``http.HandlerFunc`` into HX's ``HandlerFunc``."
+msgstr ""
+
