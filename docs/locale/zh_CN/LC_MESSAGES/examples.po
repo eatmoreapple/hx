@@ -1,0 +1,72 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HX 
+"
+"Report-Msgid-Bugs-To: 
+"
+"POT-Creation-Date: 2025-07-15 10:39+0800
+"
+"PO-Revision-Date: 2025-07-15 10:30+0800
+"
+"Last-Translator: eatmoreapple <dev@example.com>
+"
+"Language: zh_CN
+"
+"Language-Team: zh_CN
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"Generated-By: Babel 2.17.0
+"
+
+#: ../../examples.rst:2
+msgid "Examples"
+msgstr "示例"
+
+#: ../../examples.rst:4
+msgid "This section provides practical examples of using HX in various scenarios."
+msgstr "本节提供在各种场景中使用 HX 的实际示例。"
+
+#: ../../examples.rst:7
+msgid "REST API Example"
+msgstr "REST API 示例"
+
+#: ../../examples.rst:9
+msgid "Here's a complete example of a REST API for managing users:"
+msgstr "这是一个管理用户的完整 REST API 示例："
+
+#: ../../examples.rst:167
+msgid "Test the API:"
+msgstr "测试 API："
+
+#: ../../examples.rst:191
+msgid "File Upload Example"
+msgstr "文件上传示例"
+
+#: ../../examples.rst:283
+msgid "Middleware Example"
+msgstr "中间件示例"
+
+#: ../../examples.rst:374
+msgid "Test the middleware:"
+msgstr "测试中间件："
+
+#: ../../examples.rst:388
+msgid "Custom Error Handling"
+msgstr "自定义错误处理"
+
+#: ../../examples.rst:490
+msgid "JWT Authentication Example"
+msgstr "JWT 认证示例"
+

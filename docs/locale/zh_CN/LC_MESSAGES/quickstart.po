@@ -1,0 +1,168 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HX 
+"
+"Report-Msgid-Bugs-To: 
+"
+"POT-Creation-Date: 2025-07-15 10:39+0800
+"
+"PO-Revision-Date: 2025-07-15 10:30+0800
+"
+"Last-Translator: eatmoreapple <dev@example.com>
+"
+"Language: zh_CN
+"
+"Language-Team: zh_CN
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"Generated-By: Babel 2.17.0
+"
+
+#: ../../quickstart.rst:2
+msgid "Quick Start"
+msgstr "快速开始"
+
+#: ../../quickstart.rst:4
+msgid ""
+"This guide will help you get started with HX quickly. You'll learn the "
+"basic concepts and create your first HX application."
+msgstr ""
+
+#: ../../quickstart.rst:7
+msgid "Basic Concepts"
+msgstr "基本概念"
+
+#: ../../quickstart.rst:9
+msgid "HX is built around several key concepts:"
+msgstr "HX 围绕几个关键概念构建："
+
+#: ../../quickstart.rst:11
+msgid ""
+"**Type-safe handlers** - Functions that accept typed request data and "
+"return typed responses"
+msgstr ""
+
+#: ../../quickstart.rst:12
+msgid "**Request extraction** - Automatic binding of request data to Go structs"
+msgstr ""
+
+#: ../../quickstart.rst:13
+msgid ""
+"**Response rendering** - Automatic serialization of responses to various "
+"formats"
+msgstr ""
+
+#: ../../quickstart.rst:14
+msgid "**Middleware** - Composable request processing pipeline"
+msgstr ""
+
+#: ../../quickstart.rst:17
+msgid "Your First HX Application"
+msgstr "您的第一个 HX 应用程序"
+
+#: ../../quickstart.rst:19
+msgid "Let's create a simple REST API that demonstrates HX's core features:"
+msgstr "让我们创建一个简单的 REST API 来演示 HX 的核心特性："
+
+#: ../../quickstart.rst:80
+msgid "Test the application by visiting: http://localhost:8080/user/123?name=john"
+msgstr ""
+
+#: ../../quickstart.rst:83
+msgid "You should see a JSON response like:"
+msgstr ""
+
+#: ../../quickstart.rst:95
+msgid "Request Data Extraction"
+msgstr "请求数据提取"
+
+#: ../../quickstart.rst:97
+msgid "HX provides several ways to extract data from HTTP requests:"
+msgstr "HX 提供了几种从 HTTP 请求中提取数据的方法："
+
+#: ../../quickstart.rst:100
+msgid "Query Parameters"
+msgstr "查询参数"
+
+#: ../../quickstart.rst:111
+msgid "Form Data"
+msgstr "表单数据"
+
+#: ../../quickstart.rst:121
+msgid "JSON Body"
+msgstr "JSON 主体"
+
+#: ../../quickstart.rst:131
+msgid "Path Parameters"
+msgstr "路径参数"
+
+#: ../../quickstart.rst:143
+msgid "Headers"
+msgstr "请求头"
+
+#: ../../quickstart.rst:155
+msgid "Response Formats"
+msgstr "响应格式"
+
+#: ../../quickstart.rst:157
+msgid "HX supports multiple response formats:"
+msgstr "HX 支持多种响应格式："
+
+#: ../../quickstart.rst:160
+msgid "JSON Response"
+msgstr "JSON 响应"
+
+#: ../../quickstart.rst:174
+msgid "String Response"
+msgstr "字符串响应"
+
+#: ../../quickstart.rst:185
+msgid "XML Response"
+msgstr "XML 响应"
+
+#: ../../quickstart.rst:204
+msgid "Error Handling"
+msgstr "错误处理"
+
+#: ../../quickstart.rst:206
+msgid ""
+"HX provides built-in error handling. Simply return an error from your "
+"handler:"
+msgstr ""
+
+#: ../../quickstart.rst:216
+msgid "You can also customize error handling:"
+msgstr "您也可以自定义错误处理："
+
+#: ../../quickstart.rst:227
+msgid "Next Steps"
+msgstr "下一步"
+
+#: ../../quickstart.rst:229
+msgid "Now that you understand the basics, explore these topics:"
+msgstr "现在您了解了基础知识，探索这些主题："
+
+#: ../../quickstart.rst:231
+msgid ":doc:`api` - Detailed API reference"
+msgstr ""
+
+#: ../../quickstart.rst:232
+msgid ":doc:`examples` - More examples and use cases"
+msgstr ""
+
+#: ../../quickstart.rst:233
+msgid ":doc:`advanced` - Advanced features like middleware and custom extractors"
+msgstr ""
+

@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HX 
+"
+"Report-Msgid-Bugs-To: 
+"
+"POT-Creation-Date: 2025-07-15 10:39+0800
+"
+"PO-Revision-Date: 2025-07-15 10:30+0800
+"
+"Last-Translator: eatmoreapple <dev@example.com>
+"
+"Language: zh_CN
+"
+"Language-Team: zh_CN
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"Generated-By: Babel 2.17.0
+"
+
+#: ../../advanced.rst:2
+msgid "Advanced Features"
+msgstr "高级特性"
+
+#: ../../advanced.rst:4
+msgid ""
+"This section covers advanced HX features for building sophisticated "
+"applications."
+msgstr ""
+
+#: ../../advanced.rst:7
+msgid "Custom Request Extractors"
+msgstr "自定义请求提取器"
+
+#: ../../advanced.rst:9
+msgid ""
+"You can create custom extractors by implementing the ``RequestExtractor``"
+" interface:"
+msgstr ""
+
+#: ../../advanced.rst:113
+msgid "Custom Response Types"
+msgstr "自定义响应类型"
+
+#: ../../advanced.rst:115
+msgid "Implement the ``ResponseRender`` interface for custom response handling:"
+msgstr ""
+
+#: ../../advanced.rst:249
+msgid "Advanced Middleware Patterns"
+msgstr "高级中间件模式"
+
+#: ../../advanced.rst:252
+msgid "Rate Limiting Middleware"
+msgstr "速率限制中间件"
+
+#: ../../advanced.rst:317
+msgid "Circuit Breaker Middleware"
+msgstr "断路器中间件"
+
+#: ../../advanced.rst:400
+msgid "Request Context Enhancement"
+msgstr "请求上下文增强"
+
+#: ../../advanced.rst:482
+msgid "Request Validation"
+msgstr "请求验证"
+
+#: ../../advanced.rst:588
+msgid "Database Integration"
+msgstr "数据库集成"
+

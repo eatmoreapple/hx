@@ -1,0 +1,45 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2025, eatmoreapple
+# This file is distributed under the same license as the HX package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HX 
+"
+"Report-Msgid-Bugs-To: 
+"
+"POT-Creation-Date: 2025-07-15 10:39+0800
+"
+"PO-Revision-Date: 2025-07-15 10:30+0800
+"
+"Last-Translator: eatmoreapple <dev@example.com>
+"
+"Language: zh_CN
+"
+"Language-Team: zh_CN
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+"Generated-By: Babel 2.17.0
+"
+
+#: ../../index.rst:6
+msgid "Contents:"
+msgstr "目录："
+
+#: ../../index.rst:2
+msgid "HX Documentation"
+msgstr "HX 文档"
+
+#: ../../index.rst:4
+msgid ""
+"Welcome to HX, a lightweight, flexible HTTP framework for Go that simplifies request handling and data extraction."
+msgstr "欢迎使用 HX，一个轻量级、灵活的 Go HTTP 框架，可简化请求处理和数据提取。"
+
