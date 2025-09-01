@@ -167,7 +167,8 @@ func (h requestHandler[Request]) createHandler(extractFunc func(any, *http.Reque
 
 	newRequest := func() Request {
 		if isPointer {
-			return reflect.New(elemType).Interface().(Request)
+			instance, _ := reflect.TypeAssert[Request](reflect.New(elemType))
+			return instance
 		}
 		return *new(Request)
 	}

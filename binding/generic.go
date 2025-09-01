@@ -50,7 +50,8 @@ func (g GenericBinder) Bind(r *http.Request, a any) error {
 				field = field.Addr()
 			}
 			// Call the `FromRequest` method to extract data from the request and populate the field.
-			if err := field.Interface().(httpx.RequestExtractor).FromRequest(r); err != nil {
+			extractor, _ := reflect.TypeAssert[httpx.RequestExtractor](field)
+			if err := extractor.FromRequest(r); err != nil {
 				return err
 			}
 		}
