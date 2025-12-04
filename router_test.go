@@ -11,7 +11,7 @@ func TestRouter(t *testing.T) {
 	r := New()
 
 	r.GET("/hello", Warp(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hello"))
+		_, _ = w.Write([]byte("hello"))
 	}))
 
 	req := httptest.NewRequest(http.MethodGet, "/hello", nil)
@@ -33,7 +33,7 @@ func TestRouterGroup(t *testing.T) {
 	g := r.Group("/api")
 
 	g.GET("/users", Warp(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("users"))
+		_, _ = w.Write([]byte("users"))
 	}))
 
 	req := httptest.NewRequest(http.MethodGet, "/api/users", nil)
@@ -82,7 +82,7 @@ func TestRouterErrorHandler(t *testing.T) {
 			t.Errorf("expected error %v, got %v", expectedErr, err)
 		}
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("custom error"))
+		_, _ = w.Write([]byte("custom error"))
 	}))
 
 	r.GET("/", func(w http.ResponseWriter, r *http.Request) error {

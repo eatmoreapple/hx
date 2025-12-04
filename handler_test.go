@@ -15,7 +15,7 @@ import (
 func TestWarp(t *testing.T) {
 	handler := Warp(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -74,8 +74,7 @@ func TestRender(t *testing.T) {
 	// Let's try with a simple struct that doesn't require complex binding first, or just empty.
 	w := httptest.NewRecorder()
 	if err := handler(w, req); err != nil {
-		// It might fail if binding fails.
-		// For now, let's just check if it returns a function.
+		t.Errorf("expected no error, got %v", err)
 	}
 }
 
@@ -112,7 +111,7 @@ func TestJSON(t *testing.T) {
 
 func TestString(t *testing.T) {
 	type Request struct{}
-	
+
 	handler := G(func(ctx context.Context, req Request) (string, error) {
 		return "hello", nil
 	}).String()
@@ -195,7 +194,7 @@ func TestPipe(t *testing.T) {
 
 	// Pipe returns TypedHandlerFunc, we need to convert it to HandlerFunc to execute or just call it directly if we could.
 	// But TypedHandlerFunc is a function type, so we can call it.
-	
+
 	_, err := handler(context.Background(), Request{})
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)

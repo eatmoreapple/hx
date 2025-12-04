@@ -241,5 +241,5 @@ func TestBaseValueExtractorPanic(t *testing.T) {
 	}()
 
 	extractor := baseValueExtractor[TestValue]{}
-	extractor.FromRequest(nil)
+	_ = extractor.FromRequest(nil)
 }
