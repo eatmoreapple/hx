@@ -2,6 +2,7 @@ package extractor
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 )
@@ -127,7 +128,7 @@ func (b baseValueExtractor[T]) String() string {
 }
 
 // FromRequest is a placeholder implementation that should be overridden by embedding types.
-// It will panic if called directly.
+// It returns an error indicating that the method is not supported.
 func (b *baseValueExtractor[T]) FromRequest(*http.Request) error {
-	panic("not implemented")
+	return errors.ErrUnsupported
 }
