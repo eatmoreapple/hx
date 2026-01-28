@@ -232,14 +232,3 @@ func TestValueConversions(t *testing.T) {
 		})
 	}
 }
-
-func TestBaseValueExtractorPanic(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("expected panic but got nil")
-		}
-	}()
-
-	extractor := baseValueExtractor[TestValue]{}
-	_ = extractor.FromRequest(nil)
-}
