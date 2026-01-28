@@ -3,6 +3,7 @@ package hx
 
 import (
 	"fmt"
+	"io/fs"
 	"net/http"
 	"path"
 	"strings"
@@ -139,6 +140,44 @@ func (r *Router) OPTIONS(path string, handler HandlerFunc) {
 // HEAD registers a new HEAD route.
 func (r *Router) HEAD(path string, handler HandlerFunc) {
 	r.Handle(http.MethodHead, path, handler)
+}
+
+// Static registers a route to serve static files from the provided file system.
+// The pathPrefix is the URL path prefix to be stripped from the request URL.
+// The root is the file system to serve files from.
+//
+// Example:
+//
+//	r.Static("/assets", os.DirFS("./public/assets"))
+//
+// This will serve files from ./public/assets under the /assets URL path.
+// Request to /assets/js/main.js will serve ./public/assets/js/main.js.
+func (r *Router) Static(pathPrefix string, root fs.FS) {
+	// Ensure pathPrefix starts with /
+	if !strings.HasPrefix(pathPrefix, "/") {
+		pathPrefix = "/" + pathPrefix
+	}
+	// Ensure pathPrefix ends with / for subtree matching
+	if !strings.HasSuffix(pathPrefix, "/") {
+		pathPrefix = pathPrefix + "/"
+	}
+
+	// Calculate the full path prefix to use with StripPrefix
+	// We need to know the full path including the router's base path
+	fullPath := joinPath(r.basePath, pathPrefix)
+
+	fileServer := http.FileServer(http.FS(root))
+	handlerToServe := http.StripPrefix(fullPath, fileServer)
+
+	handler := func(w http.ResponseWriter, req *http.Request) error {
+		handlerToServe.ServeHTTP(w, req)
+		return nil
+	}
+
+	// Register the handler with the router's middleware stack
+	// We use Handle directly but we need to pass the pathPrefix as is
+	// because Handle will combine it with basePath again.
+	r.Handle(http.MethodGet, pathPrefix, handler)
 }
 
 // ServeHTTP implements the http.Handler interface.
