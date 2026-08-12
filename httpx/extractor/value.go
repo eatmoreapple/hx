@@ -27,6 +27,20 @@ func (b baseValueExtractor[T]) Value() T {
 	return b.value
 }
 
+// ParseWith converts the extracted value with a caller-provided parser.
+//
+// The parser receives the raw string value and can return any result type. This
+// keeps parsing policy (for example, integer base or custom validation) out of
+// the extractor while retaining a typed result.
+//
+//	userID, err := req.ID.ParseWith(parseUserID)
+//
+// ParseWith deliberately does not provide built-in parsing rules. Callers can
+// use strconv helpers directly or wrap them for domain-specific types.
+func (b baseValueExtractor[T]) ParseWith[V any](parse func(string) (V, error)) (V, error) {
+	return parse(string(b.value))
+}
+
 // MarshalJSON implements json.Marshaler interface to provide JSON serialization
 // of the extracted value.
 func (b baseValueExtractor[T]) MarshalJSON() ([]byte, error) {
@@ -118,7 +132,7 @@ func (b baseValueExtractor[T]) Float32() (float32, error) {
 // Returns an error if the value cannot be parsed as a boolean.
 // Accepts 1, t, T, TRUE, true for true and 0, f, F, FALSE, false for false.
 func (b baseValueExtractor[T]) Bool() (bool, error) {
-	return strconv.ParseBool(string(b.value))
+	return b.ParseWith(strconv.ParseBool)
 }
 
 // String returns the value as a string.

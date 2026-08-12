@@ -56,7 +56,7 @@ msgid "要求"
 msgstr ""
 
 #: ../../locale/zh_CN/LC_MESSAGES/index.rst:27
-msgid "Go 1.24 或更高版本"
+msgid "Go 1.27 或更高版本"
 msgstr ""
 
 #: ../../locale/zh_CN/LC_MESSAGES/index.rst:30
@@ -74,4 +74,3 @@ msgstr ""
 #: ../../locale/zh_CN/LC_MESSAGES/index.rst:34
 msgid ":ref:`search`"
 msgstr ""
-

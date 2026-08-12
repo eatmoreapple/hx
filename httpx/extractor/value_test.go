@@ -2,6 +2,7 @@ package extractor
 
 import (
 	"encoding/json"
+	"strconv"
 	"testing"
 )
 
@@ -30,6 +31,29 @@ func TestBaseValueExtractor(t *testing.T) {
 	}
 	if string(jsonBytes) != `"123"` {
 		t.Errorf("expected json %s, got %s", `"123"`, string(jsonBytes))
+	}
+}
+
+func TestParseWith(t *testing.T) {
+	type UserID int64
+
+	e := baseValueExtractor[TestValue]{value: TestValue("123")}
+	id, err := e.ParseWith(func(value string) (UserID, error) {
+		parsed, err := strconv.ParseInt(value, 10, 64)
+		return UserID(parsed), err
+	})
+	if err != nil {
+		t.Fatalf("ParseWith returned an unexpected error: %v", err)
+	}
+	if id != UserID(123) {
+		t.Fatalf("ParseWith returned %d, want %d", id, UserID(123))
+	}
+
+	_, err = e.ParseWith(func(value string) (int, error) {
+		return strconv.Atoi(value + "x")
+	})
+	if err == nil {
+		t.Fatal("ParseWith should return parser errors")
 	}
 }
 

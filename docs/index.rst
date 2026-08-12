@@ -24,7 +24,7 @@ Features
 Requirements
 ------------
 
-* Go 1.24 or higher
+* Go 1.27 or higher
 
 Indices and tables
 ==================

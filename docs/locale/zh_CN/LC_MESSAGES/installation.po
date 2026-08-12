@@ -39,8 +39,8 @@ msgid "Requirements"
 msgstr "要求"
 
 #: ../../installation.rst:7
-msgid "HX requires Go 1.24 or higher."
-msgstr "HX 需要 Go 1.24 或更高版本。"
+msgid "HX requires Go 1.27 or higher."
+msgstr "HX 需要 Go 1.27 或更高版本。"
 
 #: ../../installation.rst:10
 msgid "Installing HX"
@@ -67,4 +67,3 @@ msgid ""
 "Run the file and visit http://localhost:8080/hello to see if HX is "
 "working correctly."
 msgstr ""
-
