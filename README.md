@@ -11,7 +11,7 @@ HX is a lightweight, flexible HTTP framework for Go that simplifies request hand
 
 ## Installation
 
-require go version 1.24+
+require go version 1.27+
 
 ```bash
 go get github.com/eatmoreapple/hx

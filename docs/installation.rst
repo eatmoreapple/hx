@@ -4,7 +4,7 @@ Installation
 Requirements
 ------------
 
-HX requires Go 1.24 or higher.
+HX requires Go 1.27 or higher.
 
 Installing HX
 -------------

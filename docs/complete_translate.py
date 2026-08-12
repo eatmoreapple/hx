@@ -57,10 +57,10 @@ FULL_TRANSLATIONS = {
     "💪 **Type-safe request data extraction** - Compile-time safety for request handling": "💪 **类型安全的请求数据提取** - 请求处理的编译时安全性",
     "🔄 **Automatic request binding** - Seamless data binding from various sources": "🔄 **自动请求绑定** - 来自各种来源的无缝数据绑定", 
     "🛠 **Extensible design** - Easy to extend and customize": "🛠 **可扩展设计** - 易于扩展和自定义",
-    "Go 1.24 or higher": "Go 1.24 或更高版本",
+    "Go 1.27 or higher": "Go 1.27 或更高版本",
 
     # Installation content
-    "HX requires Go 1.24 or higher.": "HX 需要 Go 1.24 或更高版本。",
+    "HX requires Go 1.27 or higher.": "HX 需要 Go 1.27 或更高版本。",
     "Installing HX": "安装 HX",
     "To install HX, use ``go get``:": "要安装 HX，请使用 ``go get``：",
     "Import HX in your Go code:": "在您的 Go 代码中导入 HX：",

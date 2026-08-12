@@ -1,3 +1,3 @@
 module github.com/eatmoreapple/hx
 
-go 1.25
+go 1.27
