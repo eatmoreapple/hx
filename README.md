@@ -57,7 +57,7 @@ func app(ctx context.Context, extractor User) (any, error) {
 
 func main() {
 	router := hx.New()
-	router.GET("/{id}", hx.G(app).JSON())
+	router.GET("/{id}", hx.JSON(app))
 
 	http.ListenAndServe(":9999", router)
 }

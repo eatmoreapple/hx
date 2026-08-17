@@ -1,6 +1,8 @@
 package hx
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -25,6 +27,39 @@ func TestRouter(t *testing.T) {
 
 	if w.Body.String() != "hello" {
 		t.Errorf("expected body %s, got %s", "hello", w.Body.String())
+	}
+}
+
+func TestRouterWithJSONHandler(t *testing.T) {
+	type request struct {
+		Name string `form:"name"`
+	}
+	type response struct {
+		Message string `json:"message"`
+	}
+
+	r := New()
+	r.GET("/hello", JSON(func(_ context.Context, req request) (response, error) {
+		return response{Message: "hello " + req.Name}, nil
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/hello?name=hx", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+	if got := w.Header().Get("Content-Type"); got != "application/json; charset=utf-8" {
+		t.Fatalf("expected JSON content type, got %q", got)
+	}
+
+	var got response
+	if err := json.Unmarshal(w.Body.Bytes(), &got); err != nil {
+		t.Fatalf("failed to unmarshal response: %v", err)
+	}
+	if got.Message != "hello hx" {
+		t.Errorf("expected message %q, got %q", "hello hx", got.Message)
 	}
 }
 

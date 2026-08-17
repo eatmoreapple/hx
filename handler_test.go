@@ -84,9 +84,9 @@ func TestJSON(t *testing.T) {
 		Message string `json:"message"`
 	}
 
-	handler := G(func(ctx context.Context, req Request) (Response, error) {
+	handler := JSON(func(ctx context.Context, req Request) (Response, error) {
 		return Response{Message: "hello"}, nil
-	}).JSON()
+	})
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
