@@ -1,6 +1,9 @@
 package extractor
 
-import "net/http"
+import (
+	"net/http"
+	"reflect"
+)
 
 // PathValueExtractor implements RequestExtractor for path parameters.
 // It extracts named path values from HTTP requests using Go 1.22's Value feature.
@@ -9,9 +12,18 @@ type PathValueExtractor[T Value] struct {
 }
 
 // FromRequest implements RequestExtractor.FromRequest by extracting the path value
-// using the name provided by ValueName or the containing field's hx tag.
 func (r *PathValueExtractor[T]) FromRequest(request *http.Request) error {
-	name, err := r.resolvedValueName()
+	return r.fromRequest(request, "")
+}
+
+// FromRequestField extracts a path value with the containing field's hx tag as
+// a fallback name.
+func (r *PathValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
+	return r.fromRequest(request, field.Tag.Get(ValueNameTag))
+}
+
+func (r *PathValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {
+	name, err := r.resolvedValueName(fallbackName)
 	if err != nil {
 		return err
 	}

@@ -32,6 +32,9 @@ type NamedValue = extractor.NamedValue
 // which defines methods for extracting data from HTTP requests.
 type RequestExtractor = extractor.RequestExtractor
 
+// FieldRequestExtractor extends RequestExtractor with struct-field context.
+type FieldRequestExtractor = extractor.FieldRequestExtractor
+
 // RequestExtractorType holds the reflection Type of the RequestExtractor interface.
 // This is used for runtime type checking and reflection-based operations
 // when determining if a type implements the RequestExtractor interface.

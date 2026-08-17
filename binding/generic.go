@@ -9,19 +9,14 @@ import (
 )
 
 // GenericBinder is a utility for binding HTTP request data to a struct.
-// It iterates over the fields of the provided struct and checks if they implement
-// the `httpx.RequestExtractor` interface. If a field implements the interface,
-// the `FromRequest` method is called to populate the field with data from the HTTP request.
+// It uses FromRequestField when an extractor supports struct-field context and
+// falls back to FromRequest otherwise.
 type GenericBinder struct{}
-
-type valueNameSetter interface {
-	SetValueName(string)
-}
 
 // Bind processes the HTTP request and populates the provided struct (`a`) with data.
 // It uses reflection to inspect the struct fields and checks if they implement the
-// `httpx.RequestExtractor` interface. If a field implements the interface, the
-// `FromRequest` method is invoked to extract and set the data from the request.
+// `httpx.RequestExtractor` interface. Field-aware implementations receive the
+// containing struct field while regular implementations receive only the request.
 //
 // Parameters:
 //   - r: The HTTP request containing the data to be bound.
@@ -30,7 +25,7 @@ type valueNameSetter interface {
 // Returns:
 //   - An error if any field implementing `httpx.RequestExtractor` fails to extract data.
 //   - nil if the binding process completes successfully.
-func (g GenericBinder) Bind(r *http.Request, a any) error {
+func (g GenericBinder) Bind(r *http.Request, a any) (err error) {
 	// Use reflection to get the underlying value of the struct.
 	v := reflect.Indirect(reflect.ValueOf(a))
 	// If the provided value is not a struct, return early.
@@ -45,18 +40,21 @@ func (g GenericBinder) Bind(r *http.Request, a any) error {
 			isPointer := field.Kind() == reflect.Pointer
 
 			// If the field is a pointer and is nil, initialize it with a new instance of its type.
-			if isPointer && field.IsNil() {
+			if isPointer {
 				field.Set(reflect.New(field.Type().Elem()))
 			} else {
 				// If the field is not a pointer, convert it to a pointer.
 				field = field.Addr()
 			}
-			// Call the `FromRequest` method to extract data from the request and populate the field.
+			// Prefer field-aware extraction when the extractor supports it.
 			extractor, _ := reflect.TypeAssert[httpx.RequestExtractor](field)
-			if setter, ok := extractor.(valueNameSetter); ok {
-				setter.SetValueName(structField.Tag.Get(httpx.ValueNameTag))
+
+			if fieldExtractor, ok := extractor.(httpx.FieldRequestExtractor); ok {
+				err = fieldExtractor.FromRequestField(r, structField)
+			} else {
+				err = extractor.FromRequest(r)
 			}
-			if err := extractor.FromRequest(r); err != nil {
+			if err != nil {
 				return fmt.Errorf("binding field %q: %w", structField.Name, err)
 			}
 		}
