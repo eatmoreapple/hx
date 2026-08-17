@@ -50,6 +50,12 @@ func G[Request, Response any](h TypedHandlerFunc[Request, Response]) TypedHandle
 	return Generic(h)
 }
 
+// JSON converts a typed handler into a HandlerFunc that serializes its response as JSON.
+// Request and Response are inferred from h.
+func JSON[Request, Response any](h TypedHandlerFunc[Request, Response]) HandlerFunc {
+	return h.JSON()
+}
+
 // Render is a generic handler function that processes requests of type Request
 // and returns responses of type httpx.ResponseRender. It operates within a context and may return an error.
 //

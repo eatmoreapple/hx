@@ -85,6 +85,22 @@ Creates a type-safe handler with specified Request and Response types.
    
    router.GET("/user/{id}", hx.G(userHandler).JSON())
 
+JSON
+~~~~
+
+.. code-block:: go
+
+   func JSON[Request, Response any](h TypedHandlerFunc[Request, Response]) HandlerFunc
+
+Converts a typed handler into a handler that serializes its response as JSON.
+Request and response types are inferred from the handler.
+
+**Example:**
+
+.. code-block:: go
+
+   router.GET("/user/{id}", hx.JSON(userHandler))
+
 Render / R
 ~~~~~~~~~~
 
