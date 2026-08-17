@@ -2,6 +2,7 @@ package extractor
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"net/http"
 	"strconv"
@@ -77,6 +78,23 @@ func (b baseValueExtractor[T]) ParseWith[V any](parse func(string) (V, error)) (
 // of the extracted value.
 func (b baseValueExtractor[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(b.value)
+}
+
+func (b *baseValueExtractor[T]) UnmarshalJSON(_ []byte) error {
+	return nil
+}
+
+// UnmarshalXML implements xml.Unmarshaler by consuming and ignoring the
+// extractor's XML element. Request extractors are populated from the HTTP
+// request rather than the request body.
+func (b *baseValueExtractor[T]) UnmarshalXML(decoder *xml.Decoder, _ xml.StartElement) error {
+	return decoder.Skip()
+}
+
+// UnmarshalXMLAttr implements xml.UnmarshalerAttr by ignoring the extractor's
+// XML attribute.
+func (b *baseValueExtractor[T]) UnmarshalXMLAttr(xml.Attr) error {
+	return nil
 }
 
 // Int8 converts the value to int8.

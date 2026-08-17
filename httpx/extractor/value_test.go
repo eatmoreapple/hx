@@ -2,6 +2,7 @@ package extractor
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -86,6 +87,32 @@ func TestQueryValueExtractorFromRequestField(t *testing.T) {
 	}
 	if got := extractor.String(); got != "from-field" {
 		t.Fatalf("expected %q, got %q", "from-field", got)
+	}
+}
+
+func TestValueExtractorsIgnoreXML(t *testing.T) {
+	type requestBody struct {
+		Header HeaderValueExtractor[string] `xml:"header,attr"`
+		Query  QueryValueExtractor[string]  `xml:"query"`
+		Name   string                       `xml:"name"`
+	}
+
+	var got requestBody
+	got.Header.value = "original-header"
+	got.Query.value = "original-query"
+
+	data := []byte(`<request header="ignored"><query><nested>ignored</nested></query><name>hello</name></request>`)
+	if err := xml.Unmarshal(data, &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Header.String() != "original-header" {
+		t.Fatalf("expected header extractor to be ignored, got %q", got.Header.String())
+	}
+	if got.Query.String() != "original-query" {
+		t.Fatalf("expected query extractor to be ignored, got %q", got.Query.String())
+	}
+	if got.Name != "hello" {
+		t.Fatalf("expected regular XML field %q, got %q", "hello", got.Name)
 	}
 }
 
