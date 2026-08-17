@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"net/http"
+	"reflect"
 	"strconv"
 )
 
@@ -36,6 +37,19 @@ type NamedValue interface {
 // It implements basic operations like value retrieval and JSON marshaling.
 type baseValueExtractor[T Value] struct {
 	value T // The extracted value after processing
+}
+
+// valueNameFromField resolves a request value name from struct metadata.
+// The generic hx tag takes precedence over the extractor-specific tag, with
+// the Go field name used as the final fallback.
+func valueNameFromField(field reflect.StructField, extractorTag string) string {
+	if name := field.Tag.Get(ValueNameTag); name != "" {
+		return name
+	}
+	if name := field.Tag.Get(extractorTag); name != "" {
+		return name
+	}
+	return field.Name
 }
 
 // resolvedValueName returns the name supplied by the value type or the

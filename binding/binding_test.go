@@ -192,18 +192,74 @@ func TestGenericBinderValueNameTag(t *testing.T) {
 	}
 }
 
-func TestGenericBinderValueNameRequired(t *testing.T) {
-	type missingValueName struct {
+func TestGenericBinderExtractorSpecificTags(t *testing.T) {
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/?query-name=from-query",
+		strings.NewReader("form-name=from-form"),
+	)
+	req.Header.Set("Content-Type", MIMEPOSTForm)
+	req.Header.Set("X-Token", "from-header")
+	req.SetPathValue("path-id", "42")
+	req.AddCookie(&http.Cookie{Name: "session-id", Value: "from-cookie"})
+
+	type taggedExtractors struct {
+		Path   httpx.FromPath[string]   `path:"path-id"`
+		Query  httpx.FromQuery[string]  `query:"query-name"`
+		Header httpx.FromHeader[string] `header:"X-Token"`
+		Form   httpx.FromForm[string]   `form:"form-name"`
+		Cookie httpx.FromCookie[string] `cookie:"session-id"`
+	}
+
+	var got taggedExtractors
+	if err := Generic().Bind(req, &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if got.Path.String() != "42" {
+		t.Errorf("expected path value %q, got %q", "42", got.Path.String())
+	}
+	if got.Query.String() != "from-query" {
+		t.Errorf("expected query value %q, got %q", "from-query", got.Query.String())
+	}
+	if got.Header.String() != "from-header" {
+		t.Errorf("expected header value %q, got %q", "from-header", got.Header.String())
+	}
+	if got.Form.String() != "from-form" {
+		t.Errorf("expected form value %q, got %q", "from-form", got.Form.String())
+	}
+	if got.Cookie.String() != "from-cookie" {
+		t.Errorf("expected cookie value %q, got %q", "from-cookie", got.Cookie.String())
+	}
+}
+
+func TestGenericBinderValueNameTagPrecedence(t *testing.T) {
+	type taggedExtractor struct {
+		Query httpx.FromQuery[string] `hx:"preferred" query:"fallback"`
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/?preferred=from-hx&fallback=from-query-tag", nil)
+	var got taggedExtractor
+	if err := Generic().Bind(req, &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Query.String() != "from-hx" {
+		t.Fatalf("expected hx value %q, got %q", "from-hx", got.Query.String())
+	}
+}
+
+func TestGenericBinderFieldNameFallback(t *testing.T) {
+	type fieldNameValue struct {
 		Query httpx.FromQuery[string]
 	}
 
-	var target missingValueName
-	err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/", nil), &target)
-	if !errors.Is(err, httpx.ErrValueNameRequired) {
-		t.Fatalf("expected ErrValueNameRequired, got %v", err)
+	var got fieldNameValue
+	err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/?Query=value", nil), &got)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(err.Error(), `field "Query"`) {
-		t.Fatalf("expected error to identify Query field, got %v", err)
+	if got.Query.String() != "value" {
+		t.Fatalf("expected field-name value %q, got %q", "value", got.Query.String())
 	}
 }
 

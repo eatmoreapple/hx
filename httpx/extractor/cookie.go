@@ -17,10 +17,10 @@ func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
 	return r.fromRequest(request, "")
 }
 
-// FromRequestField extracts a cookie value with the containing field's hx tag
-// as a fallback name.
+// FromRequestField extracts a cookie value using the containing field's tags
+// or Go name as a fallback value name.
 func (r *CookieValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, field.Tag.Get(ValueNameTag))
+	return r.fromRequest(request, valueNameFromField(field, "cookie"))
 }
 
 func (r *CookieValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {

@@ -199,13 +199,17 @@ Value Interface
        ~string
    }
 
-The ``hx`` struct tag specifies the request value name when an extractor is a
-field of a struct:
+When an extractor is a struct field, its request value name is resolved from
+the first non-empty source in this order: ``hx`` tag, extractor-specific tag
+(``path``, ``query``, ``header``, ``form``, or ``cookie``), then the Go field
+name:
 
 .. code-block:: go
 
    type Request struct {
-       Query FromQuery[string] `hx:"q"`
+       Search FromQuery[string] `query:"q"`
+       Token  FromHeader[string] `hx:"X-Token" header:"ignored"`
+       Page   FromQuery[string] // uses "Page"
    }
 
 ValueNamer Interface
@@ -217,9 +221,9 @@ ValueNamer Interface
        ValueName() string
    }
 
-Optional interface for reusable named value types. ``ValueName`` takes
-precedence over the containing field's ``hx`` tag. If neither is present,
-extraction returns ``ErrValueNameRequired``.
+Optional interface for reusable named value types. A non-empty ``ValueName``
+takes precedence over all struct-field metadata. Direct extraction outside a
+struct requires ``ValueName`` and otherwise returns ``ErrValueNameRequired``.
 
 ``NamedValue`` combines ``Value`` and ``ValueNamer`` for generic code that
 requires a value to provide its own name.
