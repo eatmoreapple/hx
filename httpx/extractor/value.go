@@ -97,6 +97,12 @@ func (b *baseValueExtractor[T]) UnmarshalXMLAttr(xml.Attr) error {
 	return nil
 }
 
+// UnmarshalForm ignores form and query values so the extractor remains
+// responsible for populating itself from the HTTP request.
+func (b *baseValueExtractor[T]) UnmarshalForm([]string) error {
+	return nil
+}
+
 // Int8 converts the value to int8.
 // Returns an error if the value cannot be parsed as an 8-bit integer.
 func (b baseValueExtractor[T]) Int8() (int8, error) {

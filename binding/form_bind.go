@@ -17,20 +17,27 @@ var (
 	ErrTooManyFields   = errors.New("binding: too many fields")
 )
 
+// FormUnmarshaler allows a field to handle its own form or query values.
+// Form and query binders call UnmarshalForm before applying their default
+// scalar and slice conversions.
+type FormUnmarshaler interface {
+	UnmarshalForm([]string) error
+}
+
 const (
 	maxFields = 1000 // Maximum number of fields to prevent DOS attacks
 )
 
-// mapTo maps url.Values to a struct using reflection.
+// bindValues binds form or query values to a struct using reflection.
 // The struct fields should be tagged with "form" tags.
 // If a field's tag is "-", it will be skipped.
-func mapTo(values url.Values, dest any) error {
+func bindValues(values url.Values, dest any) error {
 	if len(values) > maxFields {
 		return ErrTooManyFields
 	}
 
 	v := reflect.ValueOf(dest)
-	if v.Kind() != reflect.Ptr {
+	if v.Kind() != reflect.Pointer {
 		return ErrPointerRequired
 	}
 
@@ -39,25 +46,50 @@ func mapTo(values url.Values, dest any) error {
 		return ErrStructRequired
 	}
 
-	t := v.Type()
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		tag := cmp.Or(f.Tag.Get("form"), f.Name)
-		if tag == "-" { // skip this field
+	for structField, field := range v.Fields() {
+		tag := cmp.Or(structField.Tag.Get("form"), structField.Name)
+		if tag == "-" {
 			continue
 		}
+
 		if value, ok := values[tag]; ok {
-			if err := setTo(v.Field(i), value); err != nil {
-				return fmt.Errorf("binding field %q: %w", f.Name, err)
+			var err error
+			if unmarshaler, ok := formUnmarshaler(field); ok {
+				err = unmarshaler.UnmarshalForm(value)
+			} else {
+				err = setTo(field, value)
+			}
+			if err != nil {
+				return fmt.Errorf("binding field %q: %w", structField.Name, err)
 			}
 		}
 	}
+
 	return nil
+}
+
+func formUnmarshaler(field reflect.Value) (FormUnmarshaler, bool) {
+	if field.Kind() != reflect.Pointer {
+		if !field.CanAddr() {
+			return nil, false
+		}
+		field = field.Addr()
+	}
+
+	unmarshaler, ok := reflect.TypeAssert[FormUnmarshaler](field)
+	if !ok {
+		return nil, false
+	}
+	if field.IsNil() {
+		field.Set(reflect.New(field.Type().Elem()))
+		unmarshaler, _ = reflect.TypeAssert[FormUnmarshaler](field)
+	}
+	return unmarshaler, true
 }
 
 // setTo sets a reflect.Value from a slice of strings
 func setTo(field reflect.Value, value []string) error {
-	if field.Kind() == reflect.Ptr {
+	if field.Kind() == reflect.Pointer {
 		if field.IsNil() {
 			field.Set(reflect.New(field.Type().Elem()))
 		}
@@ -87,7 +119,7 @@ func bindSlice(field reflect.Value, formValue []string) error {
 		return nil
 	}
 
-	if field.Type().Elem().Kind() == reflect.Ptr {
+	if field.Type().Elem().Kind() == reflect.Pointer {
 		return bindPtrSlice(field, formValue)
 	}
 	return bindValueSlice(field, formValue)
@@ -96,6 +128,7 @@ func bindSlice(field reflect.Value, formValue []string) error {
 // bindPtrSlice handles binding of slices of pointers
 func bindPtrSlice(field reflect.Value, formValue []string) error {
 	slice := reflect.MakeSlice(field.Type(), len(formValue), len(formValue))
+
 	for i, v := range formValue {
 		ptr := reflect.New(field.Type().Elem().Elem())
 		if err := setValue(ptr.Elem(), v); err != nil {
@@ -103,6 +136,7 @@ func bindPtrSlice(field reflect.Value, formValue []string) error {
 		}
 		slice.Index(i).Set(ptr)
 	}
+
 	field.Set(slice)
 	return nil
 }
@@ -110,11 +144,13 @@ func bindPtrSlice(field reflect.Value, formValue []string) error {
 // bindValueSlice handles binding of slices of values
 func bindValueSlice(field reflect.Value, formValue []string) error {
 	slice := reflect.MakeSlice(field.Type(), len(formValue), len(formValue))
+
 	for i, v := range formValue {
 		if err := setValue(slice.Index(i), v); err != nil {
 			return fmt.Errorf("binding slice element %d: %w", i, err)
 		}
 	}
+
 	field.Set(slice)
 	return nil
 }

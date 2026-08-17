@@ -22,6 +22,13 @@ func (EmptyNameExtractor) ValueName() string {
 	return ""
 }
 
+type FormValue string
+
+func (v *FormValue) UnmarshalForm(values []string) error {
+	*v = FormValue(strings.Join(values, ","))
+	return nil
+}
+
 func valueNameOf[T httpx.NamedValue](value T) string {
 	return value.ValueName()
 }
@@ -50,6 +57,59 @@ func TestDefault(t *testing.T) {
 		if binder != tt.expected {
 			t.Errorf("expected binder %T, got %T", tt.expected, binder)
 		}
+	}
+}
+
+func TestFormUnmarshaler(t *testing.T) {
+	type formValues struct {
+		Custom  FormValue `form:"custom"`
+		Default string    `form:"default"`
+	}
+
+	var got formValues
+	err := bindValues(map[string][]string{
+		"custom":  {"first", "second"},
+		"default": {"value"},
+	}, &got)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Custom != "first,second" {
+		t.Fatalf("expected custom value %q, got %q", "first,second", got.Custom)
+	}
+	if got.Default != "value" {
+		t.Fatalf("expected default value %q, got %q", "value", got.Default)
+	}
+}
+
+func TestFormBinderIgnoresValueExtractor(t *testing.T) {
+	type requestValues struct {
+		Name  string                  `form:"name"`
+		Query httpx.FromQuery[string] `form:"query" hx:"query"`
+	}
+
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"/?query=from-query",
+		strings.NewReader("name=hello&query=from-form"),
+	)
+	request.Header.Set("Content-Type", MIMEPOSTForm)
+
+	var got requestValues
+	if err := formBinder.Bind(request, &got); err != nil {
+		t.Fatalf("unexpected form binding error: %v", err)
+	}
+	if got.Query.String() != "" {
+		t.Fatalf("expected form binder to ignore extractor, got %q", got.Query.String())
+	}
+	if err := Generic().Bind(request, &got); err != nil {
+		t.Fatalf("unexpected generic binding error: %v", err)
+	}
+	if got.Name != "hello" {
+		t.Fatalf("expected form value %q, got %q", "hello", got.Name)
+	}
+	if got.Query.String() != "from-query" {
+		t.Fatalf("expected query extractor value %q, got %q", "from-query", got.Query.String())
 	}
 }
 
