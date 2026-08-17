@@ -140,7 +140,7 @@ FromPath
 
 .. code-block:: go
 
-   type FromPath[T ValueNamer] T
+   type FromPath[T Value]
 
 Extracts values from URL path parameters.
 
@@ -148,11 +148,8 @@ Extracts values from URL path parameters.
 
 .. code-block:: go
 
-   type UserID string
-   func (u UserID) ValueName() string { return "id" }
-   
    type Request struct {
-       ID FromPath[UserID] `json:"id"`
+       ID FromPath[string] `hx:"id" json:"id"`
    }
    
    // For route "/user/{id}", extracts the {id} value
@@ -162,7 +159,7 @@ FromQuery
 
 .. code-block:: go
 
-   type FromQuery[T ValueNamer] T
+   type FromQuery[T Value]
 
 Extracts values from URL query parameters.
 
@@ -171,7 +168,7 @@ FromHeader
 
 .. code-block:: go
 
-   type FromHeader[T ValueNamer] T
+   type FromHeader[T Value]
 
 Extracts values from HTTP headers.
 
@@ -180,7 +177,7 @@ FromForm
 
 .. code-block:: go
 
-   type FromForm[T ValueNamer] T
+   type FromForm[T Value]
 
 Extracts values from form data.
 
@@ -189,9 +186,27 @@ FromCookie
 
 .. code-block:: go
 
-   type FromCookie[T ValueNamer] T
+   type FromCookie[T Value]
 
 Extracts values from HTTP cookies.
+
+Value Interface
+~~~~~~~~~~~~~~~
+
+.. code-block:: go
+
+   type Value interface {
+       ~string
+   }
+
+The ``hx`` struct tag specifies the request value name when an extractor is a
+field of a struct:
+
+.. code-block:: go
+
+   type Request struct {
+       Query FromQuery[string] `hx:"q"`
+   }
 
 ValueNamer Interface
 ~~~~~~~~~~~~~~~~~~~~
@@ -202,7 +217,12 @@ ValueNamer Interface
        ValueName() string
    }
 
-Interface that extraction types must implement to specify the field name.
+Optional interface for reusable named value types. ``ValueName`` takes
+precedence over the containing field's ``hx`` tag. If neither is present,
+extraction returns ``ErrValueNameRequired``.
+
+``NamedValue`` combines ``Value`` and ``ValueNamer`` for generic code that
+requires a value to provide its own name.
 
 Response Types
 --------------

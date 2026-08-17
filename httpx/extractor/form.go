@@ -6,15 +6,19 @@ import (
 )
 
 // FormValueExtractor implements RequestExtractor for form values.
-// It extracts and stores form values of a specified type T that implements the Value interface.
+// It extracts and stores form values of a specified string-like type T.
 type FormValueExtractor[T Value] struct {
 	baseValueExtractor[T]
 }
 
 // FromRequest implements RequestExtractor.FromRequest by extracting the form value
-// using the name provided by ValueName(). The form value is converted to type T.
+// using the resolved value name. The form value is converted to type T.
 func (r *FormValueExtractor[T]) FromRequest(request *http.Request) error {
-	r.value = T(request.FormValue(r.value.ValueName()))
+	name, err := r.resolvedValueName()
+	if err != nil {
+		return err
+	}
+	r.value = T(request.FormValue(name))
 	return nil
 }
 

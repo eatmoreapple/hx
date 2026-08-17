@@ -30,24 +30,11 @@ Let's create a simple REST API that demonstrates HX's core features:
        . "github.com/eatmoreapple/hx/httpx"
    )
 
-   // Define custom extractors for path and header values
-   type UserID string
-
-   func (u UserID) ValueName() string {
-       return "id"
-   }
-
-   type UserAgent string
-
-   func (u UserAgent) ValueName() string {
-       return "user-agent"
-   }
-
    // Request structure with automatic data extraction
    type UserRequest struct {
-       Name string                `json:"name" form:"name"`     // from query/form
-       ID   FromPath[UserID]      `json:"id"`                   // from URL path
-       UA   FromHeader[UserAgent] `json:"user_agent"`           // from headers
+       Name string             `json:"name" form:"name"`               // from query/form
+       ID   FromPath[string]   `json:"id" hx:"id"`                     // from URL path
+       UA   FromHeader[string] `json:"user_agent" hx:"user-agent"`     // from headers
    }
 
    // Response structure
@@ -132,11 +119,8 @@ Path Parameters
 
 .. code-block:: go
 
-   type IDExtractor string
-   func (i IDExtractor) ValueName() string { return "id" }
-
    type PathRequest struct {
-       ID FromPath[IDExtractor] `json:"id"`
+       ID FromPath[string] `json:"id" hx:"id"`
    }
 
 Headers
@@ -144,11 +128,8 @@ Headers
 
 .. code-block:: go
 
-   type AuthExtractor string
-   func (a AuthExtractor) ValueName() string { return "authorization" }
-
    type HeaderRequest struct {
-       Auth FromHeader[AuthExtractor] `json:"auth"`
+       Auth FromHeader[string] `json:"auth" hx:"authorization"`
    }
 
 Response Formats

@@ -11,6 +11,23 @@ import (
 	"github.com/eatmoreapple/hx/httpx/extractor"
 )
 
+// ValueNameTag is the struct tag used by value extractors as a fallback when
+// their value type does not implement ValueName.
+const ValueNameTag = extractor.ValueNameTag
+
+// ErrValueNameRequired is returned when a value extractor cannot resolve a
+// non-empty value name from ValueName or an hx struct tag.
+var ErrValueNameRequired = extractor.ErrValueNameRequired
+
+// Value is the constraint accepted by single-value request extractors.
+type Value = extractor.Value
+
+// ValueNamer optionally supplies a reusable request value name.
+type ValueNamer = extractor.ValueNamer
+
+// NamedValue is a Value that supplies its own reusable request value name.
+type NamedValue = extractor.NamedValue
+
 // RequestExtractor is an alias for extractor.RequestExtractor interface,
 // which defines methods for extracting data from HTTP requests.
 type RequestExtractor = extractor.RequestExtractor

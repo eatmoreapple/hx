@@ -9,8 +9,12 @@ type PathValueExtractor[T Value] struct {
 }
 
 // FromRequest implements RequestExtractor.FromRequest by extracting the path value
-// from the request using the name provided by ValueName().
+// using the name provided by ValueName or the containing field's hx tag.
 func (r *PathValueExtractor[T]) FromRequest(request *http.Request) error {
-	r.value = T(request.PathValue(r.value.ValueName()))
+	name, err := r.resolvedValueName()
+	if err != nil {
+		return err
+	}
+	r.value = T(request.PathValue(name))
 	return nil
 }
