@@ -62,7 +62,7 @@ func (f FormBinder) Bind(r *http.Request, dest any) error {
 		}
 	}
 
-	return mapTo(values, dest)
+	return bindValues(values, dest)
 }
 
 // handleFileUploads processes file uploads in multipart forms
