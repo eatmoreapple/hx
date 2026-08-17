@@ -1,6 +1,9 @@
 package extractor
 
-import "net/http"
+import (
+	"net/http"
+	"reflect"
+)
 
 // CookieValueExtractor implements RequestExtractor for cookie values.
 // It extracts and stores cookie values of a specified string-like type T.
@@ -11,7 +14,17 @@ type CookieValueExtractor[T Value] struct {
 // FromRequest implements RequestExtractor.FromRequest by extracting the cookie value
 // using the resolved value name. The cookie value is converted to type T.
 func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
-	name, err := r.resolvedValueName()
+	return r.fromRequest(request, "")
+}
+
+// FromRequestField extracts a cookie value with the containing field's hx tag
+// as a fallback name.
+func (r *CookieValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
+	return r.fromRequest(request, field.Tag.Get(ValueNameTag))
+}
+
+func (r *CookieValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {
+	name, err := r.resolvedValueName(fallbackName)
 	if err != nil {
 		return err
 	}

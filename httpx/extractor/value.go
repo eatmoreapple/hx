@@ -34,19 +34,12 @@ type NamedValue interface {
 // baseValueExtractor provides common functionality for value extractors.
 // It implements basic operations like value retrieval and JSON marshaling.
 type baseValueExtractor[T Value] struct {
-	value     T      // The extracted value after processing
-	valueName string // The value name supplied by the containing struct field
+	value T // The extracted value after processing
 }
 
-// SetValueName supplies a fallback value name from a containing struct field.
-// A ValueName method implemented by T takes precedence over this name.
-func (b *baseValueExtractor[T]) SetValueName(name string) {
-	b.valueName = name
-}
-
-// resolvedValueName returns the name supplied by the value type or its
-// containing struct field.
-func (b baseValueExtractor[T]) resolvedValueName() (string, error) {
+// resolvedValueName returns the name supplied by the value type or the
+// caller-provided fallback name.
+func (b baseValueExtractor[T]) resolvedValueName(fallback string) (string, error) {
 	if namer, ok := any(b.value).(ValueNamer); ok {
 		name := namer.ValueName()
 		if name == "" {
@@ -54,8 +47,8 @@ func (b baseValueExtractor[T]) resolvedValueName() (string, error) {
 		}
 		return name, nil
 	}
-	if b.valueName != "" {
-		return b.valueName, nil
+	if fallback != "" {
+		return fallback, nil
 	}
 	return "", ErrValueNameRequired
 }

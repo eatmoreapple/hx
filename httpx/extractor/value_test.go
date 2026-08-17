@@ -2,6 +2,9 @@ package extractor
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"strconv"
 	"testing"
 )
@@ -54,6 +57,35 @@ func TestParseWith(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("ParseWith should return parser errors")
+	}
+}
+
+func TestQueryValueExtractorFromRequest(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/?test=from-request", nil)
+	var extractor QueryValueExtractor[TestValue]
+
+	if err := extractor.FromRequest(request); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.String(); got != "from-request" {
+		t.Fatalf("expected %q, got %q", "from-request", got)
+	}
+}
+
+func TestQueryValueExtractorFromRequestField(t *testing.T) {
+	type requestFields struct {
+		Query QueryValueExtractor[string] `hx:"query"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Query")
+	request := httptest.NewRequest(http.MethodGet, "/?query=from-field", nil)
+	var extractor QueryValueExtractor[string]
+
+	if err := extractor.FromRequestField(request, field); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.String(); got != "from-field" {
+		t.Fatalf("expected %q, got %q", "from-field", got)
 	}
 }
 
