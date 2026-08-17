@@ -7,18 +7,57 @@ import (
 	"strconv"
 )
 
-// Value is an interface for types that can be used as path parameters.
-// It combines the PathValueName method with the constraint of being a string type.
+// ValueNameTag is the struct tag used to provide an extractor value name when
+// the value type does not implement ValueNamer.
+const ValueNameTag = "hx"
+
+// ErrValueNameRequired is returned when an extractor cannot resolve a
+// non-empty request value name.
+var ErrValueNameRequired = errors.New(`extractor: non-empty value name is required; implement ValueName or set the "hx" struct tag`)
+
+// Value is a string-like type that can hold an extracted request value.
 type Value interface {
-	// ValueName returns the name of the path parameter as defined in the route.
-	ValueName() string
 	~string
+}
+
+// ValueNamer provides the name of the request value to extract.
+type ValueNamer interface {
+	ValueName() string
+}
+
+// NamedValue is a string-like value that provides its own request value name.
+type NamedValue interface {
+	Value
+	ValueNamer
 }
 
 // baseValueExtractor provides common functionality for value extractors.
 // It implements basic operations like value retrieval and JSON marshaling.
 type baseValueExtractor[T Value] struct {
-	value T // The extracted value after processing
+	value     T      // The extracted value after processing
+	valueName string // The value name supplied by the containing struct field
+}
+
+// SetValueName supplies a fallback value name from a containing struct field.
+// A ValueName method implemented by T takes precedence over this name.
+func (b *baseValueExtractor[T]) SetValueName(name string) {
+	b.valueName = name
+}
+
+// resolvedValueName returns the name supplied by the value type or its
+// containing struct field.
+func (b baseValueExtractor[T]) resolvedValueName() (string, error) {
+	if namer, ok := any(b.value).(ValueNamer); ok {
+		name := namer.ValueName()
+		if name == "" {
+			return "", ErrValueNameRequired
+		}
+		return name, nil
+	}
+	if b.valueName != "" {
+		return b.valueName, nil
+	}
+	return "", ErrValueNameRequired
 }
 
 // Value returns the extracted value.

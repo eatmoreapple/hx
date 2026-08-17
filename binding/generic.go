@@ -1,6 +1,7 @@
 package binding
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -12,6 +13,10 @@ import (
 // the `httpx.RequestExtractor` interface. If a field implements the interface,
 // the `FromRequest` method is called to populate the field with data from the HTTP request.
 type GenericBinder struct{}
+
+type valueNameSetter interface {
+	SetValueName(string)
+}
 
 // Bind processes the HTTP request and populates the provided struct (`a`) with data.
 // It uses reflection to inspect the struct fields and checks if they implement the
@@ -33,15 +38,12 @@ func (g GenericBinder) Bind(r *http.Request, a any) error {
 		return nil
 	}
 
-	// Iterate over each field in the struct.
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-
-		isPointer := field.Kind() == reflect.Ptr
+	for structField, field := range v.Fields() {
 		isImplementedRequestExtractor := httpx.IsRequestExtractorType(field.Type())
-
 		// If the field implements `httpx.RequestExtractor`, process it.
 		if isImplementedRequestExtractor {
+			isPointer := field.Kind() == reflect.Pointer
+
 			// If the field is a pointer and is nil, initialize it with a new instance of its type.
 			if isPointer && field.IsNil() {
 				field.Set(reflect.New(field.Type().Elem()))
@@ -51,11 +53,15 @@ func (g GenericBinder) Bind(r *http.Request, a any) error {
 			}
 			// Call the `FromRequest` method to extract data from the request and populate the field.
 			extractor, _ := reflect.TypeAssert[httpx.RequestExtractor](field)
+			if setter, ok := extractor.(valueNameSetter); ok {
+				setter.SetValueName(structField.Tag.Get(httpx.ValueNameTag))
+			}
 			if err := extractor.FromRequest(r); err != nil {
-				return err
+				return fmt.Errorf("binding field %q: %w", structField.Name, err)
 			}
 		}
 	}
+
 	return nil
 }
 

@@ -33,22 +33,10 @@ import (
 	. "github.com/eatmoreapple/hx/httpx"
 )
 
-type Router string
-
-func (r Router) ValueName() string {
-	return "id"
-}
-
-type Ua string
-
-func (u Ua) ValueName() string {
-	return "user-agent"
-}
-
 type User struct {
-	Name string           `json:"name" form:"name"` // extract from request query
-	Id   FromPath[Router] `json:"id"`               // extract from request path
-	Ua   FromHeader[Ua]   `json:"ua"`               // extract from request header
+	Name string             `json:"name" form:"name"`          // extract from request query
+	Id   FromPath[string]   `json:"id" hx:"id"`                // extract from request path
+	Ua   FromHeader[string] `json:"ua" hx:"user-agent"`        // extract from request header
 }
 
 func app(ctx context.Context, extractor User) (any, error) {

@@ -6,15 +6,19 @@ import (
 )
 
 // QueryValueExtractor implements RequestExtractor for query parameters.
-// It extracts and stores query values of a specified type T that implements the Value interface.
+// It extracts and stores query values of a specified string-like type T.
 type QueryValueExtractor[T Value] struct {
 	baseValueExtractor[T]
 }
 
 // FromRequest implements RequestExtractor.FromRequest by extracting the query value
-// using the name provided by ValueName(). The query value is converted to type T.
+// using the resolved value name. The query value is converted to type T.
 func (r *QueryValueExtractor[T]) FromRequest(request *http.Request) error {
-	r.value = T(request.URL.Query().Get(r.value.ValueName()))
+	name, err := r.resolvedValueName()
+	if err != nil {
+		return err
+	}
+	r.value = T(request.URL.Query().Get(name))
 	return nil
 }
 
