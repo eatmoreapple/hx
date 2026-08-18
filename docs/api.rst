@@ -133,7 +133,9 @@ Convenience function for handlers that don't require request data.
 Request Extraction
 ------------------
 
-The ``httpx`` package provides types for extracting data from different parts of HTTP requests.
+The root ``hx`` package provides shortcut aliases for the request extractor
+types in ``httpx``. Applications can use ``hx.FromPath``, ``hx.FromQuery``,
+``hx.FromHeader``, ``hx.FromForm``, and ``hx.FromCookie`` directly.
 
 FromPath
 ~~~~~~~~

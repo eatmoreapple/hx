@@ -73,38 +73,58 @@ func IsRequestExtractorType(t reflect.Type) bool {
 // These provide convenient access to the underlying extractor implementations
 // while maintaining the package's cohesive API.
 type (
-	// FromPath is a shorthand for PathValueExtractor
+	// FromPath is a shorthand for PathValueExtractor.
+	//
+	// Deprecated: use hx.FromPath.
 	FromPath[T extractor.Value] = extractor.PathValueExtractor[T]
 
-	// FromHeader is a shorthand for HeaderValueExtractor
+	// FromHeader is a shorthand for HeaderValueExtractor.
+	//
+	// Deprecated: use hx.FromHeader.
 	FromHeader[T extractor.Value] = extractor.HeaderValueExtractor[T]
 
-	// FromQuery is a shorthand for QueryValueExtractor
+	// FromQuery is a shorthand for QueryValueExtractor.
+	//
+	// Deprecated: use hx.FromQuery.
 	FromQuery[T extractor.Value] = extractor.QueryValueExtractor[T]
 
-	// FromForm is a shorthand for FormValueExtractor
+	// FromForm is a shorthand for FormValueExtractor.
+	//
+	// Deprecated: use hx.FromForm.
 	FromForm[T extractor.Value] = extractor.FormValueExtractor[T]
 
-	// FromCookie is a shorthand for CookieValueExtractor
+	// FromCookie is a shorthand for CookieValueExtractor.
+	//
+	// Deprecated: use hx.FromCookie.
 	FromCookie[T extractor.Value] = extractor.CookieValueExtractor[T]
 )
 
 // Additional type aliases for complete extractors that handle
 // collections of values rather than single named values.
 type (
-	// Header provides access to all HTTP headers in a request
+	// Header provides access to all HTTP headers in a request.
+	//
+	// Deprecated: use hx.Header.
 	Header = extractor.HeaderExtractor
 
-	// Cookies provides access to all cookies in a request
+	// Cookies provides access to all cookies in a request.
+	//
+	// Deprecated: use hx.Cookies.
 	Cookies = extractor.CookieExtractor
 
-	// Query provides access to all query parameters in a request
+	// Query provides access to all query parameters in a request.
+	//
+	// Deprecated: use hx.Query.
 	Query = extractor.QueryExtractor
 
-	// Form provides access to all form values in a request
+	// Form provides access to all form values in a request.
+	//
+	// Deprecated: use hx.Form.
 	Form = extractor.FormExtractor
 )
 
 // Empty is a no-op extractor that always succeeds without extracting any values.
 // It can be used as a placeholder when an extractor is required but no extraction is needed.
+//
+// Deprecated: use hx.Empty.
 type Empty = extractor.Empty
