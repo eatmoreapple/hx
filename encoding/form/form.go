@@ -1,4 +1,5 @@
-package binding
+// Package form decodes URL form and query values into Go structs.
+package form
 
 import (
 	"cmp"
@@ -9,18 +10,18 @@ import (
 	"strconv"
 )
 
-// Common errors that can occur during binding
+// Common errors returned while decoding form values.
 var (
-	ErrPointerRequired = errors.New("binding: destination must be a pointer")
-	ErrStructRequired  = errors.New("binding: destination must be a struct")
-	ErrUnsupportedType = errors.New("binding: unsupported type")
-	ErrTooManyFields   = errors.New("binding: too many fields")
+	ErrPointerRequired = errors.New("form: destination must be a pointer")
+	ErrStructRequired  = errors.New("form: destination must be a struct")
+	ErrUnsupportedType = errors.New("form: unsupported type")
+	ErrTooManyFields   = errors.New("form: too many fields")
 )
 
-// FormUnmarshaler allows a field to handle its own form or query values.
-// Form and query binders call UnmarshalForm before applying their default
-// scalar and slice conversions.
-type FormUnmarshaler interface {
+// Unmarshaler allows a field to handle its own form or query values.
+// Unmarshal calls UnmarshalForm before applying its default scalar and slice
+// conversions.
+type Unmarshaler interface {
 	UnmarshalForm([]string) error
 }
 
@@ -28,10 +29,10 @@ const (
 	maxFields = 1000 // Maximum number of fields to prevent DOS attacks
 )
 
-// bindValues binds form or query values to a struct using reflection.
+// Unmarshal decodes form or query values into a struct using reflection.
 // The struct fields should be tagged with "form" tags.
 // If a field's tag is "-", it will be skipped.
-func bindValues(values url.Values, dest any) error {
+func Unmarshal(values url.Values, dest any) error {
 	if len(values) > maxFields {
 		return ErrTooManyFields
 	}
@@ -60,7 +61,7 @@ func bindValues(values url.Values, dest any) error {
 				err = setTo(field, value)
 			}
 			if err != nil {
-				return fmt.Errorf("binding field %q: %w", structField.Name, err)
+				return fmt.Errorf("decoding field %q: %w", structField.Name, err)
 			}
 		}
 	}
@@ -68,7 +69,7 @@ func bindValues(values url.Values, dest any) error {
 	return nil
 }
 
-func formUnmarshaler(field reflect.Value) (FormUnmarshaler, bool) {
+func formUnmarshaler(field reflect.Value) (Unmarshaler, bool) {
 	if field.Kind() != reflect.Pointer {
 		if !field.CanAddr() {
 			return nil, false
@@ -76,13 +77,13 @@ func formUnmarshaler(field reflect.Value) (FormUnmarshaler, bool) {
 		field = field.Addr()
 	}
 
-	unmarshaler, ok := reflect.TypeAssert[FormUnmarshaler](field)
+	unmarshaler, ok := reflect.TypeAssert[Unmarshaler](field)
 	if !ok {
 		return nil, false
 	}
 	if field.IsNil() {
 		field.Set(reflect.New(field.Type().Elem()))
-		unmarshaler, _ = reflect.TypeAssert[FormUnmarshaler](field)
+		unmarshaler, _ = reflect.TypeAssert[Unmarshaler](field)
 	}
 	return unmarshaler, true
 }
@@ -132,7 +133,7 @@ func bindPtrSlice(field reflect.Value, formValue []string) error {
 	for i, v := range formValue {
 		ptr := reflect.New(field.Type().Elem().Elem())
 		if err := setValue(ptr.Elem(), v); err != nil {
-			return fmt.Errorf("binding slice element %d: %w", i, err)
+			return fmt.Errorf("decoding slice element %d: %w", i, err)
 		}
 		slice.Index(i).Set(ptr)
 	}
@@ -147,7 +148,7 @@ func bindValueSlice(field reflect.Value, formValue []string) error {
 
 	for i, v := range formValue {
 		if err := setValue(slice.Index(i), v); err != nil {
-			return fmt.Errorf("binding slice element %d: %w", i, err)
+			return fmt.Errorf("decoding slice element %d: %w", i, err)
 		}
 	}
 

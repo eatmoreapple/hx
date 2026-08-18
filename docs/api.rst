@@ -369,6 +369,30 @@ Available binders:
 * ``FormBinder`` - Binds form data (multipart and URL-encoded)
 * ``QueryBinder`` - Binds URL query parameters
 
+Form Value Decoding
+~~~~~~~~~~~~~~~~~~~
+
+The ``encoding/form`` package provides the form and query value decoder used
+by ``FormBinder`` and ``QueryBinder``:
+
+.. code-block:: go
+
+   func Unmarshal(values url.Values, dest any) error
+
+Multipart file headers can be decoded separately:
+
+.. code-block:: go
+
+   func UnmarshalFiles(files map[string][]*multipart.FileHeader, dest any) error
+
+Fields can override the default scalar or slice conversion by implementing:
+
+.. code-block:: go
+
+   type Unmarshaler interface {
+       UnmarshalForm([]string) error
+   }
+
 Error Handling
 --------------
 
