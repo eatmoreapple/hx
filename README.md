@@ -30,13 +30,12 @@ import (
 	"net/http"
 
 	"github.com/eatmoreapple/hx"
-	. "github.com/eatmoreapple/hx/httpx"
 )
 
 type User struct {
-	Name string             `json:"name" form:"name"`          // extract from request query
-	Id   FromPath[string]   `json:"id" hx:"id"`                // extract from request path
-	Ua   FromHeader[string] `json:"ua" hx:"user-agent"`        // extract from request header
+	Name string                `json:"name" form:"name"`   // extract from request query
+	Id   hx.FromPath[string]   `json:"id" hx:"id"`         // extract from request path
+	Ua   hx.FromHeader[string] `json:"ua" hx:"user-agent"` // extract from request header
 }
 
 func app(ctx context.Context, extractor User) (any, error) {
