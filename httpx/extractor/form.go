@@ -18,10 +18,10 @@ func (r *FormValueExtractor[T]) FromRequest(request *http.Request) error {
 	return r.fromRequest(request, "")
 }
 
-// FromRequestField extracts a form value with the containing field's hx tag as
-// a fallback name.
+// FromRequestField extracts a form value using the containing field's tags or
+// Go name as a fallback value name.
 func (r *FormValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, field.Tag.Get(ValueNameTag))
+	return r.fromRequest(request, valueNameFromField(field, "form"))
 }
 
 func (r *FormValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {

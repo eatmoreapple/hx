@@ -3,6 +3,7 @@ package extractor
 import (
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -70,6 +71,15 @@ func TestQueryValueExtractorFromRequest(t *testing.T) {
 	}
 	if got := extractor.String(); got != "from-request" {
 		t.Fatalf("expected %q, got %q", "from-request", got)
+	}
+}
+
+func TestQueryValueExtractorFromRequestRequiresName(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/?query=value", nil)
+	var extractor QueryValueExtractor[string]
+
+	if err := extractor.FromRequest(request); !errors.Is(err, ErrValueNameRequired) {
+		t.Fatalf("expected ErrValueNameRequired, got %v", err)
 	}
 }
 

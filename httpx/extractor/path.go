@@ -16,10 +16,10 @@ func (r *PathValueExtractor[T]) FromRequest(request *http.Request) error {
 	return r.fromRequest(request, "")
 }
 
-// FromRequestField extracts a path value with the containing field's hx tag as
-// a fallback name.
+// FromRequestField extracts a path value using the containing field's tags or
+// Go name as a fallback value name.
 func (r *PathValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, field.Tag.Get(ValueNameTag))
+	return r.fromRequest(request, valueNameFromField(field, "path"))
 }
 
 func (r *PathValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {

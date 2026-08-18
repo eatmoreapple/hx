@@ -15,8 +15,8 @@ import (
 // their value type does not implement ValueName.
 const ValueNameTag = extractor.ValueNameTag
 
-// ErrValueNameRequired is returned when a value extractor cannot resolve a
-// non-empty value name from ValueName or an hx struct tag.
+// ErrValueNameRequired is returned when direct extraction cannot resolve a
+// non-empty value name from ValueName.
 var ErrValueNameRequired = extractor.ErrValueNameRequired
 
 // Value is the constraint accepted by single-value request extractors.
