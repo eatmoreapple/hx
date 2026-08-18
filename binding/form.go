@@ -1,19 +1,11 @@
 package binding
 
 import (
-	"cmp"
-	"mime/multipart"
+	"maps"
 	"net/http"
-	"reflect"
 	"strings"
-)
 
-var (
-	// fileHeaderType is the reflect type for *multipart.FileHeader.
-	fileHeaderType = reflect.TypeFor[*multipart.FileHeader]()
-
-	// fileHeaderSliceType is the reflect type for []*multipart.FileHeader.
-	fileHeaderSliceType = reflect.TypeFor[[]*multipart.FileHeader]()
+	"github.com/eatmoreapple/hx/encoding/form"
 )
 
 // FormBinder handles both application/x-www-form-urlencoded and multipart/form-data
@@ -39,55 +31,22 @@ func (f FormBinder) Bind(r *http.Request, dest any) error {
 	values := make(map[string][]string)
 
 	// Add query parameters
-	for k, v := range r.URL.Query() {
-		values[k] = v
-	}
+	maps.Copy(values, r.URL.Query())
 
 	// Add form values
-	for k, v := range r.Form {
-		values[k] = v
-	}
+	maps.Copy(values, r.Form)
 
 	// Add multipart form values if any
 	if r.MultipartForm != nil {
-		for k, v := range r.MultipartForm.Value {
-			values[k] = v
-		}
+		maps.Copy(values, r.MultipartForm.Value)
 
 		// Handle file uploads if the destination struct has multipart.FileHeader fields
 		if len(r.MultipartForm.File) > 0 {
-			if err := handleFileUploads(r.MultipartForm.File, dest); err != nil {
+			if err := form.UnmarshalFiles(r.MultipartForm.File, dest); err != nil {
 				return err
 			}
 		}
 	}
 
-	return bindValues(values, dest)
-}
-
-// handleFileUploads processes file uploads in multipart forms
-func handleFileUploads(files map[string][]*multipart.FileHeader, dest any) error {
-	v := reflect.ValueOf(dest)
-	if v.Kind() != reflect.Ptr {
-		return ErrPointerRequired
-	}
-	v = v.Elem()
-	if v.Kind() != reflect.Struct {
-		return ErrStructRequired
-	}
-
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Type().Field(i)
-		if field.Type == fileHeaderType || field.Type == fileHeaderSliceType {
-			tag := cmp.Or(field.Tag.Get("form"), field.Name)
-			if file, ok := files[tag]; ok {
-				if field.Type == fileHeaderType {
-					v.Field(i).Set(reflect.ValueOf(file[0]))
-				} else {
-					v.Field(i).Set(reflect.ValueOf(file))
-				}
-			}
-		}
-	}
-	return nil
+	return form.Unmarshal(values, dest)
 }

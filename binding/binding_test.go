@@ -22,13 +22,6 @@ func (EmptyNameExtractor) ValueName() string {
 	return ""
 }
 
-type FormValue string
-
-func (v *FormValue) UnmarshalForm(values []string) error {
-	*v = FormValue(strings.Join(values, ","))
-	return nil
-}
-
 func valueNameOf[T httpx.NamedValue](value T) string {
 	return value.ValueName()
 }
@@ -57,28 +50,6 @@ func TestDefault(t *testing.T) {
 		if binder != tt.expected {
 			t.Errorf("expected binder %T, got %T", tt.expected, binder)
 		}
-	}
-}
-
-func TestFormUnmarshaler(t *testing.T) {
-	type formValues struct {
-		Custom  FormValue `form:"custom"`
-		Default string    `form:"default"`
-	}
-
-	var got formValues
-	err := bindValues(map[string][]string{
-		"custom":  {"first", "second"},
-		"default": {"value"},
-	}, &got)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if got.Custom != "first,second" {
-		t.Fatalf("expected custom value %q, got %q", "first,second", got.Custom)
-	}
-	if got.Default != "value" {
-		t.Fatalf("expected default value %q, got %q", "value", got.Default)
 	}
 }
 
