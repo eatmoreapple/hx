@@ -10,7 +10,8 @@ import (
 
 // GenericBinder is a utility for binding HTTP request data to a struct.
 // It uses FromRequestField when an extractor supports struct-field context and
-// falls back to FromRequest otherwise.
+// falls back to FromRequest otherwise. Anonymous value-struct fields that do
+// not implement RequestExtractor are recursively bound.
 type GenericBinder struct{}
 
 // Bind processes the HTTP request and populates the provided struct (`a`) with data.
@@ -28,6 +29,17 @@ type GenericBinder struct{}
 func (g GenericBinder) Bind(r *http.Request, a any) (err error) {
 	// Use reflection to get the underlying value of the struct.
 	v := reflect.Indirect(reflect.ValueOf(a))
+	return g.bindValue(r, v)
+}
+
+// bindValue recursively binds request data into a reflected struct value.
+// Keeping the recursion at the reflect.Value level avoids converting embedded
+// structs to interfaces and then reflecting them again.
+func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) (err error) {
+	if !v.IsValid() {
+		return nil
+	}
+
 	// If the provided value is not a struct, return early.
 	if v.Kind() != reflect.Struct {
 		return nil
@@ -56,6 +68,17 @@ func (g GenericBinder) Bind(r *http.Request, a any) (err error) {
 			}
 			if err != nil {
 				return fmt.Errorf("binding field %q: %w", structField.Name, err)
+			}
+			continue
+		}
+
+		// Treat an anonymous value struct as an embedded binding group. A
+		// pointer-to-struct is intentionally not handled here: allocating and
+		// recursively traversing nil embedded pointers can create an infinite
+		// recursion for recursive types.
+		if structField.Anonymous && field.Kind() == reflect.Struct {
+			if err = g.bindValue(r, field); err != nil {
+				return fmt.Errorf("binding embedded field %q: %w", structField.Name, err)
 			}
 		}
 	}

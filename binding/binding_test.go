@@ -98,6 +98,25 @@ func TestGenericBinder(t *testing.T) {
 	}
 }
 
+func TestGenericBinderAnonymousStruct(t *testing.T) {
+	type Embedded struct {
+		Query httpx.FromQuery[string]
+	}
+	type Request struct {
+		Embedded
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/?Query=hello", nil)
+	var got Request
+
+	if err := Generic().Bind(req, &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Embedded.Query.String() != "hello" {
+		t.Fatalf("expected embedded query %q, got %q", "hello", got.Embedded.Query.String())
+	}
+}
+
 func TestNamedValueConstraint(t *testing.T) {
 	if got := valueNameOf(TestExtractor("value")); got != "test" {
 		t.Fatalf("expected value name %q, got %q", "test", got)
