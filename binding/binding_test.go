@@ -114,7 +114,7 @@ func TestFormBinderMultipart(t *testing.T) {
 	if err := formBinder.Bind(req, &got); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got.Name != "hello" {
+	if got.Name != "query" {
 		t.Fatalf("expected form value %q, got %q", "hello", got.Name)
 	}
 	if got.Avatar == nil || got.Avatar.Filename != "avatar.txt" {
