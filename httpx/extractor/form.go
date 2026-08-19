@@ -1,9 +1,16 @@
 package extractor
 
 import (
+	"mime"
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
+)
+
+const (
+	mimeMultipartForm = "multipart/form-data"
+	defaultMaxMemory  = 32 << 20
 )
 
 // FormValueExtractor implements RequestExtractor for form values.
@@ -37,6 +44,15 @@ func (r *FormValueExtractor[T]) fromRequest(request *http.Request, fallbackName 
 type FormExtractor url.Values
 
 func (r *FormExtractor) FromRequest(request *http.Request) error {
+	contentType, _, err := mime.ParseMediaType(request.Header.Get("Content-Type"))
+	if err == nil && strings.EqualFold(contentType, mimeMultipartForm) {
+		if err := request.ParseMultipartForm(defaultMaxMemory); err != nil {
+			return err
+		}
+	} else if err := request.ParseForm(); err != nil {
+		return err
+	}
+
 	*r = FormExtractor(request.Form)
 	return nil
 }
