@@ -1,7 +1,9 @@
 package binding
 
 import (
+	"bytes"
 	"errors"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -84,6 +86,42 @@ func TestFormBinderIgnoresValueExtractor(t *testing.T) {
 	}
 }
 
+func TestFormBinderMultipart(t *testing.T) {
+	var body bytes.Buffer
+	writer := multipart.NewWriter(&body)
+	if err := writer.WriteField("name", "hello"); err != nil {
+		t.Fatal(err)
+	}
+	file, err := writer.CreateFormFile("avatar", "avatar.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := file.Write([]byte("content")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	type upload struct {
+		Name   string                `form:"name"`
+		Avatar *multipart.FileHeader `form:"avatar"`
+	}
+	req := httptest.NewRequest(http.MethodPost, "/?name=query", &body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	var got upload
+	if err := formBinder.Bind(req, &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Name != "hello" {
+		t.Fatalf("expected form value %q, got %q", "hello", got.Name)
+	}
+	if got.Avatar == nil || got.Avatar.Filename != "avatar.txt" {
+		t.Fatalf("unexpected uploaded file: %#v", got.Avatar)
+	}
+}
+
 func TestGenericBinder(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/?test=hello&ignored=wrong", nil)
 	var ts TestStruct
@@ -117,6 +155,45 @@ func TestGenericBinderAnonymousStruct(t *testing.T) {
 	}
 }
 
+func TestGenericBinderRequiresStructPointer(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/?Query=hello", nil)
+	var value struct {
+		Query httpx.FromQuery[string]
+	}
+	var nilValue *struct {
+		Query httpx.FromQuery[string]
+	}
+
+	for name, target := range map[string]any{
+		"value":              value,
+		"nil pointer":        nilValue,
+		"non-struct pointer": new(string),
+	} {
+		t.Run(name, func(t *testing.T) {
+			if err := Generic().Bind(req, target); !errors.Is(err, ErrGenericBinderTarget) {
+				t.Fatalf("expected ErrGenericBinderTarget, got %v", err)
+			}
+		})
+	}
+}
+
+func TestGenericBinderSkipsUnexportedFields(t *testing.T) {
+	type embedded struct {
+		Query httpx.FromQuery[string]
+	}
+	type request struct {
+		embedded
+	}
+
+	var got request
+	if err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/?Query=hello", nil), &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.embedded.Query.String() != "" {
+		t.Fatalf("expected unexported embedded field to be skipped, got %q", got.embedded.Query.String())
+	}
+}
+
 func TestNamedValueConstraint(t *testing.T) {
 	if got := valueNameOf(TestExtractor("value")); got != "test" {
 		t.Fatalf("expected value name %q, got %q", "test", got)
@@ -142,6 +219,24 @@ func TestGenericBinderPointer(t *testing.T) {
 
 	if ts.Name.String() != "hello" {
 		t.Errorf("expected name %s, got %s", "hello", ts.Name.String())
+	}
+}
+
+func TestGenericBinderPreservesInitializedPointer(t *testing.T) {
+	type TestStructPtr struct {
+		Name *httpx.FromQuery[string]
+	}
+	existing := &httpx.FromQuery[string]{}
+	got := TestStructPtr{Name: existing}
+
+	if err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/?Name=hello", nil), &got); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Name != existing {
+		t.Fatal("expected initialized extractor pointer to be preserved")
+	}
+	if got.Name.String() != "hello" {
+		t.Fatalf("expected name %q, got %q", "hello", got.Name.String())
 	}
 }
 

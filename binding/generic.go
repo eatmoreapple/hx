@@ -1,6 +1,7 @@
 package binding
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -14,6 +15,10 @@ import (
 // not implement RequestExtractor are recursively bound.
 type GenericBinder struct{}
 
+// ErrGenericBinderTarget indicates that Bind received anything other than a
+// non-nil pointer to a struct.
+var ErrGenericBinderTarget = errors.New("generic binder target must be a non-nil pointer to a struct")
+
 // Bind processes the HTTP request and populates the provided struct (`a`) with data.
 // It uses reflection to inspect the struct fields and checks if they implement the
 // `httpx.RequestExtractor` interface. Field-aware implementations receive the
@@ -26,26 +31,28 @@ type GenericBinder struct{}
 // Returns:
 //   - An error if any field implementing `httpx.RequestExtractor` fails to extract data.
 //   - nil if the binding process completes successfully.
-func (g GenericBinder) Bind(r *http.Request, a any) (err error) {
+func (g GenericBinder) Bind(r *http.Request, a any) error {
+	value := reflect.ValueOf(a)
+	if !value.IsValid() || value.Kind() != reflect.Pointer || value.IsNil() || value.Elem().Kind() != reflect.Struct {
+		return ErrGenericBinderTarget
+	}
+
 	// Use reflection to get the underlying value of the struct.
-	v := reflect.Indirect(reflect.ValueOf(a))
+	v := value.Elem()
 	return g.bindValue(r, v)
 }
 
 // bindValue recursively binds request data into a reflected struct value.
 // Keeping the recursion at the reflect.Value level avoids converting embedded
 // structs to interfaces and then reflecting them again.
-func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) (err error) {
-	if !v.IsValid() {
-		return nil
-	}
-
-	// If the provided value is not a struct, return early.
-	if v.Kind() != reflect.Struct {
-		return nil
-	}
-
+func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) error {
 	for structField, field := range v.Fields() {
+		// Unexported fields cannot be safely initialized or addressed through
+		// reflection, so leave them untouched.
+		if !field.CanSet() {
+			continue
+		}
+
 		isImplementedRequestExtractor := httpx.IsRequestExtractorType(field.Type())
 		// If the field implements `httpx.RequestExtractor`, process it.
 		if isImplementedRequestExtractor {
@@ -53,7 +60,9 @@ func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) (err error) {
 
 			// If the field is a pointer and is nil, initialize it with a new instance of its type.
 			if isPointer {
-				field.Set(reflect.New(field.Type().Elem()))
+				if field.IsNil() {
+					field.Set(reflect.New(field.Type().Elem()))
+				}
 			} else {
 				// If the field is not a pointer, convert it to a pointer.
 				field = field.Addr()
@@ -61,13 +70,14 @@ func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) (err error) {
 			// Prefer field-aware extraction when the extractor supports it.
 			extractor, _ := reflect.TypeAssert[httpx.RequestExtractor](field)
 
+			var extractErr error
 			if fieldExtractor, ok := extractor.(httpx.FieldRequestExtractor); ok {
-				err = fieldExtractor.FromRequestField(r, structField)
+				extractErr = fieldExtractor.FromRequestField(r, structField)
 			} else {
-				err = extractor.FromRequest(r)
+				extractErr = extractor.FromRequest(r)
 			}
-			if err != nil {
-				return fmt.Errorf("binding field %q: %w", structField.Name, err)
+			if extractErr != nil {
+				return fmt.Errorf("binding field %q: %w", structField.Name, extractErr)
 			}
 			continue
 		}
@@ -77,8 +87,8 @@ func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) (err error) {
 		// recursively traversing nil embedded pointers can create an infinite
 		// recursion for recursive types.
 		if structField.Anonymous && field.Kind() == reflect.Struct {
-			if err = g.bindValue(r, field); err != nil {
-				return fmt.Errorf("binding embedded field %q: %w", structField.Name, err)
+			if bindErr := g.bindValue(r, field); bindErr != nil {
+				return fmt.Errorf("binding embedded field %q: %w", structField.Name, bindErr)
 			}
 		}
 	}
