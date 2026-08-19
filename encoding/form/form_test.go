@@ -34,3 +34,25 @@ func TestUnmarshal(t *testing.T) {
 		t.Fatalf("expected default value %q, got %q", "value", got.Default)
 	}
 }
+
+func TestUnmarshalSkipsUnexportedFields(t *testing.T) {
+	type formValues struct {
+		Visible string `form:"visible"`
+		hidden  string `form:"hidden"`
+	}
+
+	got := formValues{hidden: "original"}
+	err := Unmarshal(url.Values{
+		"visible": {"decoded"},
+		"hidden":  {"must-not-be-decoded"},
+	}, &got)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Visible != "decoded" {
+		t.Fatalf("expected visible field %q, got %q", "decoded", got.Visible)
+	}
+	if got.hidden != "original" {
+		t.Fatalf("expected unexported field to remain unchanged, got %q", got.hidden)
+	}
+}

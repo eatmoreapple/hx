@@ -27,6 +27,10 @@ func UnmarshalFiles(files map[string][]*multipart.FileHeader, dest any) error {
 	}
 
 	for structField, field := range v.Fields() {
+		if !field.CanSet() {
+			continue
+		}
+
 		if structField.Type != fileHeaderType && structField.Type != fileHeaderSliceType {
 			continue
 		}

@@ -35,3 +35,28 @@ func TestUnmarshalFiles(t *testing.T) {
 		t.Fatalf("expected ignored file field to remain nil, got %#v", got.Ignored)
 	}
 }
+
+func TestUnmarshalFilesSkipsUnexportedFields(t *testing.T) {
+	visible := &multipart.FileHeader{Filename: "visible.txt"}
+	originalHidden := &multipart.FileHeader{Filename: "original.txt"}
+
+	type formFiles struct {
+		Visible *multipart.FileHeader `form:"visible"`
+		hidden  *multipart.FileHeader `form:"hidden"`
+	}
+
+	got := formFiles{hidden: originalHidden}
+	err := UnmarshalFiles(map[string][]*multipart.FileHeader{
+		"visible": {visible},
+		"hidden":  {{Filename: "must-not-be-decoded.txt"}},
+	}, &got)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.Visible != visible {
+		t.Fatalf("expected visible file %q, got %#v", visible.Filename, got.Visible)
+	}
+	if got.hidden != originalHidden {
+		t.Fatalf("expected unexported file field to remain unchanged, got %#v", got.hidden)
+	}
+}
