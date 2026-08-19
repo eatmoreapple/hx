@@ -48,6 +48,10 @@ func Unmarshal(values url.Values, dest any) error {
 	}
 
 	for structField, field := range v.Fields() {
+		if !field.CanSet() {
+			continue
+		}
+
 		tag := cmp.Or(structField.Tag.Get("form"), structField.Name)
 		if tag == "-" {
 			continue
