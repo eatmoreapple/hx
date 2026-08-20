@@ -83,8 +83,8 @@ func R[Request any](h TypedHandlerFunc[Request, httpx.ResponseRender]) HandlerFu
 
 // E is a convenience function for creating a handler that doesn't require any request data.
 // It takes a function that accepts a context and returns a response of type Response.
-func E[Response any](h func(ctx context.Context) (Response, error)) TypedHandlerFunc[httpx.Empty, Response] {
-	return func(ctx context.Context, req httpx.Empty) (Response, error) {
+func E[Response any](h func(ctx context.Context) (Response, error)) TypedHandlerFunc[Empty, Response] {
+	return func(ctx context.Context, req Empty) (Response, error) {
 		return h(ctx)
 	}
 }

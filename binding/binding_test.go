@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/eatmoreapple/hx/httpx"
+	"github.com/eatmoreapple/hx/httpx/extractor"
 )
 
 type TestExtractor string
@@ -24,12 +24,12 @@ func (EmptyNameExtractor) ValueName() string {
 	return ""
 }
 
-func valueNameOf[T httpx.NamedValue](value T) string {
+func valueNameOf[T extractor.NamedValue](value T) string {
 	return value.ValueName()
 }
 
 type TestStruct struct {
-	Name httpx.FromQuery[TestExtractor] `json:"name" hx:"ignored"`
+	Name extractor.QueryValueExtractor[TestExtractor] `json:"name" hx:"ignored"`
 }
 
 func TestDefault(t *testing.T) {
@@ -57,8 +57,8 @@ func TestDefault(t *testing.T) {
 
 func TestFormBinderIgnoresValueExtractor(t *testing.T) {
 	type requestValues struct {
-		Name  string                  `form:"name"`
-		Query httpx.FromQuery[string] `form:"query" hx:"query"`
+		Name  string                                `form:"name"`
+		Query extractor.QueryValueExtractor[string] `form:"query" hx:"query"`
 	}
 
 	request := httptest.NewRequest(
@@ -138,7 +138,7 @@ func TestGenericBinder(t *testing.T) {
 
 func TestGenericBinderAnonymousStruct(t *testing.T) {
 	type Embedded struct {
-		Query httpx.FromQuery[string]
+		Query extractor.QueryValueExtractor[string]
 	}
 	type Request struct {
 		Embedded
@@ -150,18 +150,18 @@ func TestGenericBinderAnonymousStruct(t *testing.T) {
 	if err := Generic().Bind(req, &got); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got.Embedded.Query.String() != "hello" {
-		t.Fatalf("expected embedded query %q, got %q", "hello", got.Embedded.Query.String())
+	if got.Query.String() != "hello" {
+		t.Fatalf("expected embedded query %q, got %q", "hello", got.Query.String())
 	}
 }
 
 func TestGenericBinderRequiresStructPointer(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/?Query=hello", nil)
 	var value struct {
-		Query httpx.FromQuery[string]
+		Query extractor.QueryValueExtractor[string]
 	}
 	var nilValue *struct {
-		Query httpx.FromQuery[string]
+		Query extractor.QueryValueExtractor[string]
 	}
 
 	for name, target := range map[string]any{
@@ -179,7 +179,7 @@ func TestGenericBinderRequiresStructPointer(t *testing.T) {
 
 func TestGenericBinderSkipsUnexportedFields(t *testing.T) {
 	type embedded struct {
-		Query httpx.FromQuery[string]
+		Query extractor.QueryValueExtractor[string]
 	}
 	type request struct {
 		embedded
@@ -189,8 +189,8 @@ func TestGenericBinderSkipsUnexportedFields(t *testing.T) {
 	if err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/?Query=hello", nil), &got); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got.embedded.Query.String() != "" {
-		t.Fatalf("expected unexported embedded field to be skipped, got %q", got.embedded.Query.String())
+	if got.Query.String() != "" {
+		t.Fatalf("expected unexported embedded field to be skipped, got %q", got.Query.String())
 	}
 }
 
@@ -204,7 +204,7 @@ func TestGenericBinderPointer(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/?test=hello", nil)
 
 	type TestStructPtr struct {
-		Name *httpx.FromQuery[string] `hx:"test"`
+		Name *extractor.QueryValueExtractor[string] `hx:"test"`
 	}
 	var ts TestStructPtr
 
@@ -224,9 +224,9 @@ func TestGenericBinderPointer(t *testing.T) {
 
 func TestGenericBinderPreservesInitializedPointer(t *testing.T) {
 	type TestStructPtr struct {
-		Name *httpx.FromQuery[string]
+		Name *extractor.QueryValueExtractor[string]
 	}
-	existing := &httpx.FromQuery[string]{}
+	existing := &extractor.QueryValueExtractor[string]{}
 	got := TestStructPtr{Name: existing}
 
 	if err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/?Name=hello", nil), &got); err != nil {
@@ -248,11 +248,11 @@ func TestGenericBinderValueNameTag(t *testing.T) {
 
 	type queryValue string
 	type taggedExtractors struct {
-		Path   httpx.FromPath[string]      `hx:"id"`
-		Query  httpx.FromQuery[queryValue] `hx:"query"`
-		Header httpx.FromHeader[string]    `hx:"X-Token"`
-		Form   httpx.FromForm[string]      `hx:"form"`
-		Cookie httpx.FromCookie[string]    `hx:"session"`
+		Path   extractor.PathValueExtractor[string]      `hx:"id"`
+		Query  extractor.QueryValueExtractor[queryValue] `hx:"query"`
+		Header extractor.HeaderValueExtractor[string]    `hx:"X-Token"`
+		Form   extractor.FormValueExtractor[string]      `hx:"form"`
+		Cookie extractor.CookieValueExtractor[string]    `hx:"session"`
 	}
 
 	var got taggedExtractors
@@ -289,11 +289,11 @@ func TestGenericBinderExtractorSpecificTags(t *testing.T) {
 	req.AddCookie(&http.Cookie{Name: "session-id", Value: "from-cookie"})
 
 	type taggedExtractors struct {
-		Path   httpx.FromPath[string]   `path:"path-id"`
-		Query  httpx.FromQuery[string]  `query:"query-name"`
-		Header httpx.FromHeader[string] `header:"X-Token"`
-		Form   httpx.FromForm[string]   `form:"form-name"`
-		Cookie httpx.FromCookie[string] `cookie:"session-id"`
+		Path   extractor.PathValueExtractor[string]   `path:"path-id"`
+		Query  extractor.QueryValueExtractor[string]  `query:"query-name"`
+		Header extractor.HeaderValueExtractor[string] `header:"X-Token"`
+		Form   extractor.FormValueExtractor[string]   `form:"form-name"`
+		Cookie extractor.CookieValueExtractor[string] `cookie:"session-id"`
 	}
 
 	var got taggedExtractors
@@ -320,7 +320,7 @@ func TestGenericBinderExtractorSpecificTags(t *testing.T) {
 
 func TestGenericBinderValueNameTagPrecedence(t *testing.T) {
 	type taggedExtractor struct {
-		Query httpx.FromQuery[string] `hx:"preferred" query:"fallback"`
+		Query extractor.QueryValueExtractor[string] `hx:"preferred" query:"fallback"`
 	}
 
 	req := httptest.NewRequest(http.MethodGet, "/?preferred=from-hx&fallback=from-query-tag", nil)
@@ -335,7 +335,7 @@ func TestGenericBinderValueNameTagPrecedence(t *testing.T) {
 
 func TestGenericBinderFieldNameFallback(t *testing.T) {
 	type fieldNameValue struct {
-		Query httpx.FromQuery[string]
+		Query extractor.QueryValueExtractor[string]
 	}
 
 	var got fieldNameValue
@@ -350,12 +350,12 @@ func TestGenericBinderFieldNameFallback(t *testing.T) {
 
 func TestGenericBinderEmptyValueName(t *testing.T) {
 	type emptyValueName struct {
-		Query httpx.FromQuery[EmptyNameExtractor] `hx:"fallback"`
+		Query extractor.QueryValueExtractor[EmptyNameExtractor] `hx:"fallback"`
 	}
 
 	var target emptyValueName
 	err := Generic().Bind(httptest.NewRequest(http.MethodGet, "/?fallback=value", nil), &target)
-	if !errors.Is(err, httpx.ErrValueNameRequired) {
+	if !errors.Is(err, extractor.ErrValueNameRequired) {
 		t.Fatalf("expected ErrValueNameRequired, got %v", err)
 	}
 }

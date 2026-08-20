@@ -50,7 +50,7 @@ var implementsRequestExtractorTypeMap = sync.Map{}
 // the RequestExtractor interface. If the type is not a pointer, it converts it to
 // a pointer type before checking.
 func isRequestExtractorType(t reflect.Type) bool {
-	if t.Kind() != reflect.Ptr {
+	if t.Kind() != reflect.Pointer {
 		t = reflect.PointerTo(t)
 	}
 	return t.Implements(RequestExtractorType)
