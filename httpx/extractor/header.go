@@ -14,21 +14,21 @@ type HeaderValueExtractor[T Value] struct {
 // FromRequest implements RequestExtractor.FromRequest by extracting the header value
 // using the resolved value name. The header value is converted to type T.
 func (r *HeaderValueExtractor[T]) FromRequest(request *http.Request) error {
-	return r.fromRequest(request, "")
+	return r.fromRequest(request, "", false)
 }
 
 // FromRequestField extracts a header value using the containing field's tags
 // or Go name as a fallback value name.
 func (r *HeaderValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, valueNameFromField(field, "header"))
+	return r.fromRequest(request, valueNameFromField(field, "header"), allowEmptyFromField(field))
 }
 
-func (r *HeaderValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {
+func (r *HeaderValueExtractor[T]) fromRequest(request *http.Request, fallbackName string, allowEmpty bool) error {
 	name, err := r.resolvedValueName(fallbackName)
 	if err != nil {
 		return err
 	}
-	return r.set(request.Header.Get(name))
+	return r.set(request.Header.Get(name), allowEmpty)
 }
 
 type HeaderExtractor http.Header

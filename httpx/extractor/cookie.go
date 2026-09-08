@@ -1,6 +1,7 @@
 package extractor
 
 import (
+	"errors"
 	"net/http"
 	"reflect"
 )
@@ -14,25 +15,28 @@ type CookieValueExtractor[T Value] struct {
 // FromRequest implements RequestExtractor.FromRequest by extracting the cookie value
 // using the resolved value name. The cookie value is converted to type T.
 func (r *CookieValueExtractor[T]) FromRequest(request *http.Request) error {
-	return r.fromRequest(request, "")
+	return r.fromRequest(request, "", false)
 }
 
 // FromRequestField extracts a cookie value using the containing field's tags
 // or Go name as a fallback value name.
 func (r *CookieValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, valueNameFromField(field, "cookie"))
+	return r.fromRequest(request, valueNameFromField(field, "cookie"), allowEmptyFromField(field))
 }
 
-func (r *CookieValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {
+func (r *CookieValueExtractor[T]) fromRequest(request *http.Request, fallbackName string, allowEmpty bool) error {
 	name, err := r.resolvedValueName(fallbackName)
 	if err != nil {
 		return err
 	}
 	cookie, err := request.Cookie(name)
 	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return r.set("", allowEmpty)
+		}
 		return err
 	}
-	return r.set(cookie.Value)
+	return r.set(cookie.Value, allowEmpty)
 }
 
 type CookieExtractor []*http.Cookie

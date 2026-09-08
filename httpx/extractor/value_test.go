@@ -97,6 +97,148 @@ func TestQueryValueExtractorFromRequestInt(t *testing.T) {
 	}
 }
 
+func TestQueryValueExtractorFromRequestIntEmpty(t *testing.T) {
+	type requestFields struct {
+		Page QueryValueExtractor[int] `hx:"page"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Page")
+	var extractor QueryValueExtractor[int]
+
+	for _, rawURL := range []string{"/", "/?page=", "/?other=1"} {
+		request := httptest.NewRequest(http.MethodGet, rawURL, nil)
+		if err := extractor.FromRequestField(request, field); err != nil {
+			t.Fatalf("%s: unexpected error: %v", rawURL, err)
+		}
+		if got := extractor.Value(); got != 0 {
+			t.Fatalf("%s: expected 0, got %d", rawURL, got)
+		}
+	}
+}
+
+func TestQueryValueExtractorFromRequestIntRequiredEmpty(t *testing.T) {
+	type requestFields struct {
+		Page QueryValueExtractor[int] `hx:"page" required:"true"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Page")
+	var extractor QueryValueExtractor[int]
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	if err := extractor.FromRequestField(request, field); !errors.Is(err, ErrEmptyValue) {
+		t.Fatalf("expected ErrEmptyValue, got %v", err)
+	}
+}
+
+func TestFormValueExtractorFromRequestIntEmpty(t *testing.T) {
+	type requestFields struct {
+		Age FormValueExtractor[int] `hx:"age"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Age")
+	request := httptest.NewRequest(http.MethodPost, "/", nil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	var extractor FormValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.Value(); got != 0 {
+		t.Fatalf("expected 0, got %d", got)
+	}
+}
+
+func TestFormValueExtractorFromRequestIntRequiredEmpty(t *testing.T) {
+	type requestFields struct {
+		Age FormValueExtractor[int] `hx:"age" required:"true"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Age")
+	request := httptest.NewRequest(http.MethodPost, "/", nil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	var extractor FormValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); !errors.Is(err, ErrEmptyValue) {
+		t.Fatalf("expected ErrEmptyValue, got %v", err)
+	}
+}
+
+func TestHeaderValueExtractorFromRequestIntEmpty(t *testing.T) {
+	type requestFields struct {
+		Count HeaderValueExtractor[int] `hx:"X-Count"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Count")
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	var extractor HeaderValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.Value(); got != 0 {
+		t.Fatalf("expected 0, got %d", got)
+	}
+}
+
+func TestHeaderValueExtractorFromRequestIntRequiredEmpty(t *testing.T) {
+	type requestFields struct {
+		Count HeaderValueExtractor[int] `hx:"X-Count" required:"true"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Count")
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	var extractor HeaderValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); !errors.Is(err, ErrEmptyValue) {
+		t.Fatalf("expected ErrEmptyValue, got %v", err)
+	}
+}
+
+func TestCookieValueExtractorFromRequestIntEmpty(t *testing.T) {
+	type requestFields struct {
+		ID CookieValueExtractor[int] `hx:"id"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("ID")
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	var extractor CookieValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.Value(); got != 0 {
+		t.Fatalf("expected 0, got %d", got)
+	}
+}
+
+func TestCookieValueExtractorFromRequestIntRequiredEmpty(t *testing.T) {
+	type requestFields struct {
+		ID CookieValueExtractor[int] `hx:"id" required:"true"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("ID")
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	var extractor CookieValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); err == nil {
+		t.Fatal("expected error for missing required cookie")
+	}
+}
+
+func TestPathValueExtractorFromRequestIntEmpty(t *testing.T) {
+	type requestFields struct {
+		ID PathValueExtractor[int] `hx:"id"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("ID")
+	request := httptest.NewRequest(http.MethodGet, "/users/", nil)
+	var extractor PathValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); !errors.Is(err, ErrEmptyValue) {
+		t.Fatalf("expected ErrEmptyValue, got %v", err)
+	}
+}
+
 func TestQueryValueExtractorFromRequestIntInvalid(t *testing.T) {
 	type requestFields struct {
 		Page QueryValueExtractor[int] `hx:"page"`

@@ -46,6 +46,10 @@ func valueNameFromField(field reflect.StructField, extractorTag string) string {
 	return field.Name
 }
 
+func allowEmptyFromField(field reflect.StructField) bool {
+	return field.Tag.Get("required") != "true"
+}
+
 // resolvedValueName returns the name supplied by the value type or the
 // caller-provided fallback name.
 func (b baseValueExtractor[T]) resolvedValueName(fallback string) (string, error) {
@@ -62,8 +66,8 @@ func (b baseValueExtractor[T]) resolvedValueName(fallback string) (string, error
 	return "", ErrValueNameRequired
 }
 
-func (b *baseValueExtractor[T]) set(s string) error {
-	v, err := parse[T](s)
+func (b *baseValueExtractor[T]) set(s string, allowEmpty bool) error {
+	v, err := parse[T](s, allowEmpty)
 	if err != nil {
 		return err
 	}

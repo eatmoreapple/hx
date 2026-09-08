@@ -15,6 +15,9 @@ const ValueNameTag = "hx"
 // non-empty request value name.
 var ErrValueNameRequired = errors.New(`extractor: non-empty value name is required; implement ValueName or set the "hx" struct tag`)
 
+// ErrEmptyValue is returned when a required request value is missing or empty.
+var ErrEmptyValue = errors.New("extractor: empty value")
+
 var errUnsupportedValueType = errors.New("unsupported type")
 
 // Value is the set of types a single request value can be converted into.
@@ -33,7 +36,14 @@ type Value interface {
 // Defined types such as `type UserID int` are allowed by Value so they can
 // implement ValueNamer, but they do not match those cases; they fall through
 // to parseReflect, which converts using the underlying kind.
-func parse[T Value](value string) (T, error) {
+func parse[T Value](value string, allowEmpty bool) (T, error) {
+	if value == "" {
+		var zero T
+		if allowEmpty {
+			return zero, nil
+		}
+		return zero, ErrEmptyValue
+	}
 	switch any(*new(T)).(type) {
 	case int:
 		v, err := strconv.Atoi(value)

@@ -15,21 +15,21 @@ type QueryValueExtractor[T Value] struct {
 // FromRequest implements RequestExtractor.FromRequest by extracting the query value
 // using the resolved value name. The query value is converted to type T.
 func (r *QueryValueExtractor[T]) FromRequest(request *http.Request) error {
-	return r.fromRequest(request, "")
+	return r.fromRequest(request, "", false)
 }
 
 // FromRequestField extracts a query value using the containing field's tags or
 // Go name as a fallback value name.
 func (r *QueryValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, valueNameFromField(field, "query"))
+	return r.fromRequest(request, valueNameFromField(field, "query"), allowEmptyFromField(field))
 }
 
-func (r *QueryValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {
+func (r *QueryValueExtractor[T]) fromRequest(request *http.Request, fallbackName string, allowEmpty bool) error {
 	name, err := r.resolvedValueName(fallbackName)
 	if err != nil {
 		return err
 	}
-	return r.set(request.URL.Query().Get(name))
+	return r.set(request.URL.Query().Get(name), allowEmpty)
 }
 
 // QueryExtractor is a type alias for http.URL.Query providing a shorter name

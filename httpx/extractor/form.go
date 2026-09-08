@@ -22,21 +22,21 @@ type FormValueExtractor[T Value] struct {
 // FromRequest implements RequestExtractor.FromRequest by extracting the form value
 // using the resolved value name. The form value is converted to type T.
 func (r *FormValueExtractor[T]) FromRequest(request *http.Request) error {
-	return r.fromRequest(request, "")
+	return r.fromRequest(request, "", false)
 }
 
 // FromRequestField extracts a form value using the containing field's tags or
 // Go name as a fallback value name.
 func (r *FormValueExtractor[T]) FromRequestField(request *http.Request, field reflect.StructField) error {
-	return r.fromRequest(request, valueNameFromField(field, "form"))
+	return r.fromRequest(request, valueNameFromField(field, "form"), allowEmptyFromField(field))
 }
 
-func (r *FormValueExtractor[T]) fromRequest(request *http.Request, fallbackName string) error {
+func (r *FormValueExtractor[T]) fromRequest(request *http.Request, fallbackName string, allowEmpty bool) error {
 	name, err := r.resolvedValueName(fallbackName)
 	if err != nil {
 		return err
 	}
-	return r.set(request.FormValue(name))
+	return r.set(request.FormValue(name), allowEmpty)
 }
 
 // FormExtractor is a type alias for http.Request.Form
