@@ -33,13 +33,13 @@ Let's create a simple REST API that demonstrates HX's core features:
    // Request structure with automatic data extraction
    type UserRequest struct {
        Name string             `json:"name" form:"name"`               // from query/form
-       ID   FromPath[string]   `json:"id" hx:"id"`                     // from URL path
+       ID   FromPath[int]      `json:"id" hx:"id"`                     // from URL path
        UA   FromHeader[string] `json:"user_agent" hx:"user-agent"`     // from headers
    }
 
    // Response structure
    type UserResponse struct {
-       ID        string `json:"id"`
+       ID        int    `json:"id"`
        Name      string `json:"name"`
        UserAgent string `json:"user_agent"`
        Message   string `json:"message"`
@@ -48,9 +48,9 @@ Let's create a simple REST API that demonstrates HX's core features:
    // Handler function with type safety
    func getUserInfo(ctx context.Context, req UserRequest) (UserResponse, error) {
        return UserResponse{
-           ID:        string(req.ID),
+           ID:        req.ID.Value(),
            Name:      req.Name,
-           UserAgent: string(req.UA),
+           UserAgent: req.UA.Value(),
            Message:   "Hello from HX!",
        }, nil
    }
@@ -72,7 +72,7 @@ You should see a JSON response like:
 .. code-block:: json
 
    {
-     "id": "123",
+     "id": 123,
      "name": "john",
      "user_agent": "Mozilla/5.0...",
      "message": "Hello from HX!"
@@ -89,9 +89,9 @@ Query Parameters
 .. code-block:: go
 
    type QueryRequest struct {
-       Page  int    `form:"page"`
-       Limit int    `form:"limit"`
-       Query string `form:"q"`
+       Page  FromQuery[int]    `hx:"page"`
+       Limit FromQuery[int]    `hx:"limit"`
+       Query FromQuery[string] `hx:"q"`
    }
 
 Form Data
@@ -120,7 +120,7 @@ Path Parameters
 .. code-block:: go
 
    type PathRequest struct {
-       ID FromPath[string] `json:"id" hx:"id"`
+       ID FromPath[int] `json:"id" hx:"id"`
    }
 
 Headers

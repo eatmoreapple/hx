@@ -16,7 +16,6 @@ Here's a complete example of a REST API for managing users:
        "context"
        "fmt"
        "net/http"
-       "strconv"
        "sync"
 
        "github.com/eatmoreapple/hx"
@@ -38,8 +37,8 @@ Here's a complete example of a REST API for managing users:
    )
 
    // Extractors
-   type UserID string
-   func (u UserID) ValueName() string { return "id" }
+   type UserID int
+   func (UserID) ValueName() string { return "id" }
 
    // Request types
    type GetUserRequest struct {
@@ -74,10 +73,7 @@ Here's a complete example of a REST API for managing users:
    }
 
    func getUser(ctx context.Context, req GetUserRequest) (User, error) {
-       id, err := strconv.Atoi(string(req.ID))
-       if err != nil {
-           return User{}, fmt.Errorf("invalid user ID: %v", err)
-       }
+       id := int(req.ID.Value())
 
        usersMu.RLock()
        defer usersMu.RUnlock()
@@ -109,10 +105,7 @@ Here's a complete example of a REST API for managing users:
    }
 
    func updateUser(ctx context.Context, req UpdateUserRequest) (User, error) {
-       id, err := strconv.Atoi(string(req.ID))
-       if err != nil {
-           return User{}, fmt.Errorf("invalid user ID: %v", err)
-       }
+       id := int(req.ID.Value())
 
        usersMu.Lock()
        defer usersMu.Unlock()
@@ -134,10 +127,7 @@ Here's a complete example of a REST API for managing users:
    }
 
    func deleteUser(ctx context.Context, req DeleteUserRequest) (map[string]string, error) {
-       id, err := strconv.Atoi(string(req.ID))
-       if err != nil {
-           return nil, fmt.Errorf("invalid user ID: %v", err)
-       }
+       id := int(req.ID.Value())
 
        usersMu.Lock()
        defer usersMu.Unlock()

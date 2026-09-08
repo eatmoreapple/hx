@@ -655,8 +655,8 @@ Database Integration
        }
    }
 
-   type UserIDExtractor string
-   func (u UserIDExtractor) ValueName() string { return "id" }
+   type UserIDExtractor int
+   func (UserIDExtractor) ValueName() string { return "id" }
 
    type GetUserRequest struct {
        ID FromPath[UserIDExtractor] `json:"id"`
@@ -670,10 +670,7 @@ Database Integration
    func getUserHandler(ctx context.Context, req GetUserRequest) (*User, error) {
        userService := ctx.Value("userService").(*UserService)
        
-       id := 0 // Convert string to int (simplified)
-       fmt.Sscanf(string(req.ID), "%d", &id)
-       
-       return userService.GetUser(id)
+       return userService.GetUser(int(req.ID.Value()))
    }
 
    func createUserHandler(ctx context.Context, req CreateUserRequest) (*User, error) {

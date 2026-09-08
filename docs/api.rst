@@ -151,10 +151,11 @@ Extracts values from URL path parameters.
 .. code-block:: go
 
    type Request struct {
-       ID FromPath[string] `hx:"id" json:"id"`
+       ID FromPath[int] `hx:"id" json:"id"`
    }
    
-   // For route "/user/{id}", extracts the {id} value
+   // For route "/users/{id}", extracts the {id} value as an int.
+   // Use Value() for the parsed result and String() for the raw path segment.
 
 FromQuery
 ~~~~~~~~~
@@ -164,6 +165,14 @@ FromQuery
    type FromQuery[T Value]
 
 Extracts values from URL query parameters.
+
+**Example:**
+
+.. code-block:: go
+
+   type Request struct {
+       Page FromQuery[int] `hx:"page"`
+   }
 
 FromHeader
 ~~~~~~~~~~
@@ -198,8 +207,18 @@ Value Interface
 .. code-block:: go
 
    type Value interface {
-       ~string
+       ~int | ~int8 | ~int16 | ~int32 | ~int64 |
+           ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+           ~float32 | ~float64 |
+           ~string |
+           ~bool |
+           uuid.UUID
    }
+
+``T`` is parsed from the raw request string. Predeclared types such as
+``int`` and ``string`` are converted directly; defined types
+(``type UserID int``) use the same underlying kind so they can also
+implement ``ValueNamer``.
 
 When an extractor is a struct field, its request value name is resolved from
 the first non-empty source in this order: ``hx`` tag, extractor-specific tag
@@ -211,7 +230,7 @@ name:
    type Request struct {
        Search FromQuery[string] `query:"q"`
        Token  FromHeader[string] `hx:"X-Token" header:"ignored"`
-       Page   FromQuery[string] // uses "Page"
+       Page   FromQuery[int] // uses "Page"
    }
 
 ValueNamer Interface
@@ -223,9 +242,21 @@ ValueNamer Interface
        ValueName() string
    }
 
-Optional interface for reusable named value types. A non-empty ``ValueName``
-takes precedence over all struct-field metadata. Direct extraction outside a
-struct requires ``ValueName`` and otherwise returns ``ErrValueNameRequired``.
+Optional interface for reusable named value types. Only defined types can
+implement it (predeclared ``int`` and ``string`` cannot have methods).
+A non-empty ``ValueName`` takes precedence over all struct-field metadata.
+Direct extraction outside a struct requires ``ValueName`` and otherwise
+returns ``ErrValueNameRequired``.
+
+.. code-block:: go
+
+   type UserID int
+
+   func (UserID) ValueName() string { return "id" }
+
+   type Request struct {
+       ID FromPath[UserID]
+   }
 
 ``NamedValue`` combines ``Value`` and ``ValueNamer`` for generic code that
 requires a value to provide its own name.
