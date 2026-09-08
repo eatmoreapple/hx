@@ -64,7 +64,7 @@ func (b baseValueExtractor[T]) resolvedValueName(fallback string) (string, error
 
 func (b *baseValueExtractor[T]) set(s string) error {
 	v, err := parse[T](s)
-	if err != nil && !errors.Is(err, errUnsupportedValueType) {
+	if err != nil {
 		return err
 	}
 	b.raw = s
