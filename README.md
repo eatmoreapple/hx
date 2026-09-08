@@ -34,7 +34,7 @@ import (
 
 type User struct {
 	Name string                `json:"name" form:"name"`   // extract from request query
-	Id   hx.FromPath[string]   `json:"id" hx:"id"`         // extract from request path
+	Id   hx.FromPath[int]      `json:"id" hx:"id"`         // extract from request path
 	Ua   hx.FromHeader[string] `json:"ua" hx:"user-agent"` // extract from request header
 }
 
@@ -44,20 +44,20 @@ func app(ctx context.Context, extractor User) (any, error) {
 
 func main() {
 	router := hx.New()
-	router.GET("/{id}", hx.JSON(app))
+	router.GET("/users/{id}", hx.JSON(app))
 
 	http.ListenAndServe(":9999", router)
 }
 ```
 
-Open your browser and navigate to [http://localhost:9999/1?name=eatmoreapple](http://localhost:9999/1?name=eatmoreapple)
+Open your browser and navigate to [http://localhost:9999/users/1?name=eatmoreapple](http://localhost:9999/users/1?name=eatmoreapple)
 
 You should see a response like:
 
 ```json
 {
   "name": "eatmoreapple",
-  "id": "1",
+  "id": 1,
   "ua": "Mozilla/5.0 ..."
 }
 ```
