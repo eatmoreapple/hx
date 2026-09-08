@@ -19,7 +19,7 @@ const ValueNameTag = extractor.ValueNameTag
 // non-empty value name from ValueName.
 var ErrValueNameRequired = extractor.ErrValueNameRequired
 
-// Value is the constraint accepted by single-value request extractors.
+// Value is the set of types a single request value can be converted into.
 type Value = extractor.Value
 
 // ValueNamer optionally supplies a reusable request value name.

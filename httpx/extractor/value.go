@@ -1,12 +1,10 @@
 package extractor
 
 import (
-	"encoding/json"
-	"encoding/xml"
 	"errors"
-	"net/http"
 	"reflect"
 	"strconv"
+	"uuid"
 )
 
 // ValueNameTag is the struct tag used to provide an extractor value name when
@@ -17,9 +15,114 @@ const ValueNameTag = "hx"
 // non-empty request value name.
 var ErrValueNameRequired = errors.New(`extractor: non-empty value name is required; implement ValueName or set the "hx" struct tag`)
 
-// Value is a string-like type that can hold an extracted request value.
+var errUnsupportedValueType = errors.New("unsupported type")
+
+// Value is the set of types a single request value can be converted into.
 type Value interface {
-	~string
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+	~float32 | ~float64 |
+	~string |
+	~bool |
+	uuid.UUID
+}
+
+// parse converts a request string into T.
+//
+// The type switch only matches predeclared types (int, string, uuid.UUID, …).
+// Defined types such as `type UserID int` are allowed by Value so they can
+// implement ValueNamer, but they do not match those cases; they fall through
+// to parseReflect, which converts using the underlying kind.
+func parse[T Value](value string) (T, error) {
+	switch any(*new(T)).(type) {
+	case int:
+		v, err := strconv.Atoi(value)
+		return any(v).(T), err
+	case int8:
+		v, err := strconv.ParseInt(value, 10, 8)
+		return any(int8(v)).(T), err
+	case int16:
+		v, err := strconv.ParseInt(value, 10, 16)
+		return any(int16(v)).(T), err
+	case int32:
+		v, err := strconv.ParseInt(value, 10, 32)
+		return any(int32(v)).(T), err
+	case int64:
+		v, err := strconv.ParseInt(value, 10, 64)
+		return any(v).(T), err
+	case uint:
+		v, err := strconv.ParseUint(value, 10, 0)
+		return any(uint(v)).(T), err
+	case uint8:
+		v, err := strconv.ParseUint(value, 10, 8)
+		return any(uint8(v)).(T), err
+	case uint16:
+		v, err := strconv.ParseUint(value, 10, 16)
+		return any(uint16(v)).(T), err
+	case uint32:
+		v, err := strconv.ParseUint(value, 10, 32)
+		return any(uint32(v)).(T), err
+	case uint64:
+		v, err := strconv.ParseUint(value, 10, 64)
+		return any(uint64(v)).(T), err
+	case float32:
+		v, err := strconv.ParseFloat(value, 32)
+		return any(float32(v)).(T), err
+	case float64:
+		v, err := strconv.ParseFloat(value, 64)
+		return any(v).(T), err
+	case string:
+		return any(value).(T), nil
+	case bool:
+		v, err := strconv.ParseBool(value)
+		return any(v).(T), err
+	case uuid.UUID:
+		v, err := uuid.Parse(value)
+		return any(v).(T), err
+	default:
+		return parseReflect[T](value)
+	}
+}
+
+// parseReflect handles defined types that the type switch cannot see.
+func parseReflect[T Value](value string) (T, error) {
+	var dest T
+	rv := reflect.ValueOf(&dest).Elem()
+	switch rv.Kind() {
+	case reflect.String:
+		rv.SetString(value)
+		return dest, nil
+	case reflect.Bool:
+		parsed, err := strconv.ParseBool(value)
+		if err != nil {
+			return dest, err
+		}
+		rv.SetBool(parsed)
+		return dest, nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		parsed, err := strconv.ParseInt(value, 10, rv.Type().Bits())
+		if err != nil {
+			return dest, err
+		}
+		rv.SetInt(parsed)
+		return dest, nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		parsed, err := strconv.ParseUint(value, 10, rv.Type().Bits())
+		if err != nil {
+			return dest, err
+		}
+		rv.SetUint(parsed)
+		return dest, nil
+	case reflect.Float32, reflect.Float64:
+		parsed, err := strconv.ParseFloat(value, rv.Type().Bits())
+		if err != nil {
+			return dest, err
+		}
+		rv.SetFloat(parsed)
+		return dest, nil
+	default:
+		return dest, errUnsupportedValueType
+	}
 }
 
 // ValueNamer provides the name of the request value to extract.
@@ -31,188 +134,4 @@ type ValueNamer interface {
 type NamedValue interface {
 	Value
 	ValueNamer
-}
-
-// baseValueExtractor provides common functionality for value extractors.
-// It implements basic operations like value retrieval and JSON marshaling.
-type baseValueExtractor[T Value] struct {
-	value T // The extracted value after processing
-}
-
-// valueNameFromField resolves a request value name from struct metadata.
-// The generic hx tag takes precedence over the extractor-specific tag, with
-// the Go field name used as the final fallback.
-func valueNameFromField(field reflect.StructField, extractorTag string) string {
-	if name := field.Tag.Get(ValueNameTag); name != "" {
-		return name
-	}
-	if name := field.Tag.Get(extractorTag); name != "" {
-		return name
-	}
-	return field.Name
-}
-
-// resolvedValueName returns the name supplied by the value type or the
-// caller-provided fallback name.
-func (b baseValueExtractor[T]) resolvedValueName(fallback string) (string, error) {
-	if namer, ok := any(b.value).(ValueNamer); ok {
-		name := namer.ValueName()
-		if name == "" {
-			return "", ErrValueNameRequired
-		}
-		return name, nil
-	}
-	if fallback != "" {
-		return fallback, nil
-	}
-	return "", ErrValueNameRequired
-}
-
-// Value returns the extracted value.
-// This method should be called after FromRequest has been executed successfully.
-func (b baseValueExtractor[T]) Value() T {
-	return b.value
-}
-
-// ParseWith converts the extracted value with a caller-provided parser.
-//
-// The parser receives the raw string value and can return any result type. This
-// keeps parsing policy (for example, integer base or custom validation) out of
-// the extractor while retaining a typed result.
-//
-//	userID, err := req.ID.ParseWith(parseUserID)
-//
-// ParseWith deliberately does not provide built-in parsing rules. Callers can
-// use strconv helpers directly or wrap them for domain-specific types.
-func (b baseValueExtractor[T]) ParseWith[V any](parse func(string) (V, error)) (V, error) {
-	return parse(string(b.value))
-}
-
-// MarshalJSON implements json.Marshaler interface to provide JSON serialization
-// of the extracted value.
-func (b baseValueExtractor[T]) MarshalJSON() ([]byte, error) {
-	return json.Marshal(b.value)
-}
-
-func (b *baseValueExtractor[T]) UnmarshalJSON(_ []byte) error {
-	return nil
-}
-
-// UnmarshalXML implements xml.Unmarshaler by consuming and ignoring the
-// extractor's XML element. Request extractors are populated from the HTTP
-// request rather than the request body.
-func (b *baseValueExtractor[T]) UnmarshalXML(decoder *xml.Decoder, _ xml.StartElement) error {
-	return decoder.Skip()
-}
-
-// UnmarshalXMLAttr implements xml.UnmarshalerAttr by ignoring the extractor's
-// XML attribute.
-func (b *baseValueExtractor[T]) UnmarshalXMLAttr(xml.Attr) error {
-	return nil
-}
-
-// UnmarshalForm ignores form and query values so the extractor remains
-// responsible for populating itself from the HTTP request.
-func (b *baseValueExtractor[T]) UnmarshalForm([]string) error {
-	return nil
-}
-
-// Int8 converts the value to int8.
-// Returns an error if the value cannot be parsed as an 8-bit integer.
-func (b baseValueExtractor[T]) Int8() (int8, error) {
-	v, err := strconv.ParseInt(string(b.value), 10, 8)
-	return int8(v), err
-}
-
-// Int16 converts the value to int16.
-// Returns an error if the value cannot be parsed as a 16-bit integer.
-func (b baseValueExtractor[T]) Int16() (int16, error) {
-	v, err := strconv.ParseInt(string(b.value), 10, 16)
-	return int16(v), err
-}
-
-// Int32 converts the value to int32.
-// Returns an error if the value cannot be parsed as an integer.
-func (b baseValueExtractor[T]) Int32() (int32, error) {
-	v, err := strconv.ParseInt(string(b.value), 10, 32)
-	return int32(v), err
-}
-
-// Int64 converts the value to int64.
-// Returns an error if the value cannot be parsed as an integer.
-func (b baseValueExtractor[T]) Int64() (int64, error) {
-	return strconv.ParseInt(string(b.value), 10, 64)
-}
-
-// Int converts the value to int.
-// Returns an error if the value cannot be parsed as an integer.
-func (b baseValueExtractor[T]) Int() (int, error) {
-	v, err := strconv.ParseInt(string(b.value), 10, 0)
-	return int(v), err
-}
-
-// Uint8 converts the value to uint8.
-// Returns an error if the value cannot be parsed as an 8-bit unsigned integer.
-func (b baseValueExtractor[T]) Uint8() (uint8, error) {
-	v, err := strconv.ParseUint(string(b.value), 10, 8)
-	return uint8(v), err
-}
-
-// Uint16 converts the value to uint16.
-// Returns an error if the value cannot be parsed as a 16-bit unsigned integer.
-func (b baseValueExtractor[T]) Uint16() (uint16, error) {
-	v, err := strconv.ParseUint(string(b.value), 10, 16)
-	return uint16(v), err
-}
-
-// Uint32 converts the value to uint32.
-// Returns an error if the value cannot be parsed as an unsigned integer.
-func (b baseValueExtractor[T]) Uint32() (uint32, error) {
-	v, err := strconv.ParseUint(string(b.value), 10, 32)
-	return uint32(v), err
-}
-
-// Uint64 converts the value to uint64.
-// Returns an error if the value cannot be parsed as an unsigned integer.
-func (b baseValueExtractor[T]) Uint64() (uint64, error) {
-	return strconv.ParseUint(string(b.value), 10, 64)
-}
-
-// Uint converts the value to uint.
-// Returns an error if the value cannot be parsed as an unsigned integer.
-func (b baseValueExtractor[T]) Uint() (uint, error) {
-	v, err := strconv.ParseUint(string(b.value), 10, 0)
-	return uint(v), err
-}
-
-// Float64 converts the value to float64.
-// Returns an error if the value cannot be parsed as a floating-point number.
-func (b baseValueExtractor[T]) Float64() (float64, error) {
-	return strconv.ParseFloat(string(b.value), 64)
-}
-
-// Float32 converts the value to float32.
-// Returns an error if the value cannot be parsed as a floating-point number.
-func (b baseValueExtractor[T]) Float32() (float32, error) {
-	v, err := strconv.ParseFloat(string(b.value), 32)
-	return float32(v), err
-}
-
-// Bool converts the value to bool.
-// Returns an error if the value cannot be parsed as a boolean.
-// Accepts 1, t, T, TRUE, true for true and 0, f, F, FALSE, false for false.
-func (b baseValueExtractor[T]) Bool() (bool, error) {
-	return b.ParseWith(strconv.ParseBool)
-}
-
-// String returns the value as a string.
-// This is a convenience method that simply converts the value to string.
-func (b baseValueExtractor[T]) String() string {
-	return string(b.value)
-}
-
-// FromRequest is a placeholder implementation that should be overridden by embedding types.
-// It returns an error indicating that the method is not supported.
-func (b *baseValueExtractor[T]) FromRequest(*http.Request) error {
-	return errors.ErrUnsupported
 }

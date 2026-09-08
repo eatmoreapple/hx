@@ -29,8 +29,7 @@ func (r *QueryValueExtractor[T]) fromRequest(request *http.Request, fallbackName
 	if err != nil {
 		return err
 	}
-	r.value = T(request.URL.Query().Get(name))
-	return nil
+	return r.set(request.URL.Query().Get(name))
 }
 
 // QueryExtractor is a type alias for http.URL.Query providing a shorter name

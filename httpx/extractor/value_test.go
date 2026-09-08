@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
-	"strconv"
 	"testing"
 )
 
@@ -18,11 +17,10 @@ func (t TestValue) ValueName() string {
 }
 
 func TestBaseValueExtractor(t *testing.T) {
-	val := TestValue("123")
-	extractor := baseValueExtractor[TestValue]{value: val}
+	extractor := baseValueExtractor[string]{raw: "123", value: "123"}
 
-	if extractor.Value() != val {
-		t.Errorf("expected value %s, got %s", val, extractor.Value())
+	if extractor.Value() != "123" {
+		t.Errorf("expected value %s, got %s", "123", extractor.Value())
 	}
 
 	if extractor.String() != "123" {
@@ -39,29 +37,6 @@ func TestBaseValueExtractor(t *testing.T) {
 	}
 }
 
-func TestParseWith(t *testing.T) {
-	type UserID int64
-
-	e := baseValueExtractor[TestValue]{value: TestValue("123")}
-	id, err := e.ParseWith(func(value string) (UserID, error) {
-		parsed, err := strconv.ParseInt(value, 10, 64)
-		return UserID(parsed), err
-	})
-	if err != nil {
-		t.Fatalf("ParseWith returned an unexpected error: %v", err)
-	}
-	if id != UserID(123) {
-		t.Fatalf("ParseWith returned %d, want %d", id, UserID(123))
-	}
-
-	_, err = e.ParseWith(func(value string) (int, error) {
-		return strconv.Atoi(value + "x")
-	})
-	if err == nil {
-		t.Fatal("ParseWith should return parser errors")
-	}
-}
-
 func TestQueryValueExtractorFromRequest(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/?test=from-request", nil)
 	var extractor QueryValueExtractor[TestValue]
@@ -72,6 +47,25 @@ func TestQueryValueExtractorFromRequest(t *testing.T) {
 	if got := extractor.String(); got != "from-request" {
 		t.Fatalf("expected %q, got %q", "from-request", got)
 	}
+	if got := extractor.Value(); got != TestValue("from-request") {
+		t.Fatalf("expected value %q, got %q", "from-request", got)
+	}
+}
+
+type namedPage int
+
+func (namedPage) ValueName() string { return "page" }
+
+func TestQueryValueExtractorFromRequestDefinedInt(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/?page=7", nil)
+	var extractor QueryValueExtractor[namedPage]
+
+	if err := extractor.FromRequest(request); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.Value(); got != 7 {
+		t.Fatalf("expected 7, got %d", got)
+	}
 }
 
 func TestQueryValueExtractorFromRequestRequiresName(t *testing.T) {
@@ -80,6 +74,40 @@ func TestQueryValueExtractorFromRequestRequiresName(t *testing.T) {
 
 	if err := extractor.FromRequest(request); !errors.Is(err, ErrValueNameRequired) {
 		t.Fatalf("expected ErrValueNameRequired, got %v", err)
+	}
+}
+
+func TestQueryValueExtractorFromRequestInt(t *testing.T) {
+	type requestFields struct {
+		Page QueryValueExtractor[int] `hx:"page"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Page")
+	request := httptest.NewRequest(http.MethodGet, "/?page=42", nil)
+	var extractor QueryValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got := extractor.Value(); got != 42 {
+		t.Fatalf("expected 42, got %d", got)
+	}
+	if got := extractor.String(); got != "42" {
+		t.Fatalf("expected raw %q, got %q", "42", got)
+	}
+}
+
+func TestQueryValueExtractorFromRequestIntInvalid(t *testing.T) {
+	type requestFields struct {
+		Page QueryValueExtractor[int] `hx:"page"`
+	}
+
+	field, _ := reflect.TypeFor[requestFields]().FieldByName("Page")
+	request := httptest.NewRequest(http.MethodGet, "/?page=not-a-number", nil)
+	var extractor QueryValueExtractor[int]
+
+	if err := extractor.FromRequestField(request, field); err == nil {
+		t.Fatal("expected conversion error")
 	}
 }
 
@@ -108,8 +136,8 @@ func TestValueExtractorsIgnoreXML(t *testing.T) {
 	}
 
 	var got requestBody
-	got.Header.value = "original-header"
-	got.Query.value = "original-query"
+	got.Header.raw = "original-header"
+	got.Query.raw = "original-query"
 
 	data := []byte(`<request header="ignored"><query><nested>ignored</nested></query><name>hello</name></request>`)
 	if err := xml.Unmarshal(data, &got); err != nil {
@@ -123,205 +151,5 @@ func TestValueExtractorsIgnoreXML(t *testing.T) {
 	}
 	if got.Name != "hello" {
 		t.Fatalf("expected regular XML field %q, got %q", "hello", got.Name)
-	}
-}
-
-func TestValueConversions(t *testing.T) {
-	tests := []struct {
-		name  string
-		value string
-		check func(baseValueExtractor[TestValue]) error
-	}{
-		{
-			name:  "Int",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Int()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Int8",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Int8()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Int16",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Int16()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Int32",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Int32()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Int64",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Int64()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Uint",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Uint()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Uint8",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Uint8()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Uint16",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Uint16()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Uint32",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Uint32()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Uint64",
-			value: "123",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Uint64()
-				if err != nil {
-					return err
-				}
-				if v != 123 {
-					t.Errorf("expected 123, got %d", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Float32",
-			value: "123.45",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Float32()
-				if err != nil {
-					return err
-				}
-				if v != 123.45 {
-					t.Errorf("expected 123.45, got %f", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Float64",
-			value: "123.45",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Float64()
-				if err != nil {
-					return err
-				}
-				if v != 123.45 {
-					t.Errorf("expected 123.45, got %f", v)
-				}
-				return nil
-			},
-		},
-		{
-			name:  "Bool",
-			value: "true",
-			check: func(e baseValueExtractor[TestValue]) error {
-				v, err := e.Bool()
-				if err != nil {
-					return err
-				}
-				if !v {
-					t.Errorf("expected true, got %v", v)
-				}
-				return nil
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			extractor := baseValueExtractor[TestValue]{value: TestValue(tt.value)}
-			if err := tt.check(extractor); err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
-		})
 	}
 }
