@@ -27,6 +27,5 @@ func (r *PathValueExtractor[T]) fromRequest(request *http.Request, fallbackName 
 	if err != nil {
 		return err
 	}
-	r.value = T(request.PathValue(name))
-	return nil
+	return r.set(request.PathValue(name))
 }

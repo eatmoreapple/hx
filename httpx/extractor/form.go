@@ -36,8 +36,7 @@ func (r *FormValueExtractor[T]) fromRequest(request *http.Request, fallbackName 
 	if err != nil {
 		return err
 	}
-	r.value = T(request.FormValue(name))
-	return nil
+	return r.set(request.FormValue(name))
 }
 
 // FormExtractor is a type alias for http.Request.Form

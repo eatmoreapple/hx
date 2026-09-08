@@ -28,8 +28,7 @@ func (r *HeaderValueExtractor[T]) fromRequest(request *http.Request, fallbackNam
 	if err != nil {
 		return err
 	}
-	r.value = T(request.Header.Get(name))
-	return nil
+	return r.set(request.Header.Get(name))
 }
 
 type HeaderExtractor http.Header

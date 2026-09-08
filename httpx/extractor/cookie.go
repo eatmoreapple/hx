@@ -32,8 +32,7 @@ func (r *CookieValueExtractor[T]) fromRequest(request *http.Request, fallbackNam
 	if err != nil {
 		return err
 	}
-	r.value = T(cookie.Value)
-	return nil
+	return r.set(cookie.Value)
 }
 
 type CookieExtractor []*http.Cookie
