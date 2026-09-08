@@ -70,14 +70,14 @@ func (g GenericBinder) bindValue(r *http.Request, v reflect.Value) error {
 			// Prefer field-aware extraction when the extractor supports it.
 			extractor, _ := reflect.TypeAssert[httpx.RequestExtractor](field)
 
-			var extractErr error
+			var err error
 			if fieldExtractor, ok := extractor.(httpx.FieldRequestExtractor); ok {
-				extractErr = fieldExtractor.FromRequestField(r, structField)
+				err = fieldExtractor.FromRequestField(r, structField)
 			} else {
-				extractErr = extractor.FromRequest(r)
+				err = extractor.FromRequest(r)
 			}
-			if extractErr != nil {
-				return fmt.Errorf("binding field %q: %w", structField.Name, extractErr)
+			if err != nil {
+				return httpx.WrapExtractError(structField.Name, err)
 			}
 			continue
 		}

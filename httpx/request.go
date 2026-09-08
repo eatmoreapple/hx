@@ -35,10 +35,18 @@ type RequestExtractor = extractor.RequestExtractor
 // FieldRequestExtractor extends RequestExtractor with struct-field context.
 type FieldRequestExtractor = extractor.FieldRequestExtractor
 
+// ExtractError wraps a FromRequest / FromRequestField failure.
+type ExtractError = extractor.ExtractError
+
+// WrapExtractError wraps err as an ExtractError.
+func WrapExtractError(field string, err error) error {
+	return extractor.WrapExtractError(field, err)
+}
+
 // RequestExtractorType holds the reflection Type of the RequestExtractor interface.
 // This is used for runtime type checking and reflection-based operations
 // when determining if a type implements the RequestExtractor interface.
-var RequestExtractorType = reflect.TypeOf((*RequestExtractor)(nil)).Elem()
+var RequestExtractorType = reflect.TypeFor[RequestExtractor]()
 
 // implementsRequestExtractorTypeMap is a synchronized map that caches results
 // of interface implementation checks to improve performance.

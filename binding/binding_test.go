@@ -358,6 +358,13 @@ func TestGenericBinderEmptyValueName(t *testing.T) {
 	if !errors.Is(err, extractor.ErrValueNameRequired) {
 		t.Fatalf("expected ErrValueNameRequired, got %v", err)
 	}
+	var extractErr *extractor.ExtractError
+	if !errors.As(err, &extractErr) {
+		t.Fatalf("expected ExtractError, got %T", err)
+	}
+	if extractErr.Field != "Query" {
+		t.Fatalf("expected field %q, got %q", "Query", extractErr.Field)
+	}
 }
 
 func TestJSONBinder(t *testing.T) {

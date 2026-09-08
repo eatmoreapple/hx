@@ -220,8 +220,13 @@ func (h requestHandler[Request]) createHandler(extractFunc func(any, *http.Reque
 
 // extractAndHandle creates a HandlerFunc that extracts request data using the RequestExtractor interface.
 func (h requestHandler[Request]) extractAndHandle() HandlerFunc {
+	requestType := reflect.TypeFor[Request]()
+	if requestType.Kind() == reflect.Pointer {
+		requestType = requestType.Elem()
+	}
+	field := requestType.Name()
 	return h.createHandler(func(target any, r *http.Request) error {
-		return target.(httpx.RequestExtractor).FromRequest(r)
+		return httpx.WrapExtractError(field, target.(httpx.RequestExtractor).FromRequest(r))
 	})
 }
 
