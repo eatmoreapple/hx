@@ -197,36 +197,36 @@ func isStructType(t reflect.Type) bool {
 	return t.Kind() == reflect.Struct
 }
 
-// createHandler encapsulates common logic for request handling.
+// createHandler builds a HandlerFunc that allocates a zero Request for each
+// call, fills it through extractFunc, and passes that same value to the handler.
+// Pointer and value requests are split once, while the handler is built.
+// A pointer Request is already the address extractFunc writes through.
+// A value Request is allocated with new so extractFunc can write through *Request;
+// the handler receives the filled value after extraction.
 func (h requestHandler[Request]) createHandler(extractFunc func(any, *http.Request) error) HandlerFunc {
 	requestType := reflect.TypeFor[Request]()
 	isPointer := requestType.Kind() == reflect.Pointer
 
-	// cache request element type
-	var elemType reflect.Type
 	if isPointer {
-		elemType = requestType.Elem()
-	}
+		// Request is *T. reflect.New allocates T and returns *T.
+		// Passing &req would bind **T, which the struct binder rejects.
+		elemType := requestType.Elem()
 
-	newRequest := func() Request {
-		if isPointer {
-			instance, _ := reflect.TypeAssert[Request](reflect.New(elemType))
-			return instance
+		return func(w http.ResponseWriter, r *http.Request) error {
+			req, _ := reflect.TypeAssert[Request](reflect.New(elemType))
+			if err := extractFunc(req, r); err != nil {
+				return err
+			}
+			return h.call(w, r, req)
 		}
-		return *new(Request)
 	}
-
+	// Request is T. Bind *T, then pass the filled value.
 	return func(w http.ResponseWriter, r *http.Request) error {
-		request := newRequest()
-		bindTarget := any(&request)
-		if isPointer {
-			bindTarget = request
-		}
-
-		if err := extractFunc(bindTarget, r); err != nil {
+		req := new(Request)
+		if err := extractFunc(req, r); err != nil {
 			return err
 		}
-		return h.call(w, r, request)
+		return h.call(w, r, *req)
 	}
 }
 
