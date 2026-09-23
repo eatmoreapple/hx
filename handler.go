@@ -175,14 +175,26 @@ func (h requestHandler[Request]) call(w http.ResponseWriter, r *http.Request, re
 }
 
 // asHandlerFunc converts the requestHandler into a standard HandlerFunc.
-// It automatically determines whether to use extraction or binding based on the Request type.
+// RequestExtractor types are extracted from the request. Structs and pointers
+// to structs are bound. Any other request type panics here, when the handler
+// is built, instead of failing on the first request.
 func (h requestHandler[Request]) asHandlerFunc() HandlerFunc {
-	isImplementRequestExtractor := httpx.IsRequestExtractorType(reflect.TypeFor[Request]())
-
-	if isImplementRequestExtractor {
+	requestType := reflect.TypeFor[Request]()
+	if httpx.IsRequestExtractorType(requestType) {
 		return h.extractAndHandle()
 	}
+	if !isStructType(requestType) {
+		panic("hx: request type " + requestType.String() + " must be a struct, a pointer to a struct, or implement FromRequest")
+	}
 	return h.bindAndHandle()
+}
+
+// isStructType reports whether t is a struct or a pointer to a struct.
+func isStructType(t reflect.Type) bool {
+	if t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+	return t.Kind() == reflect.Struct
 }
 
 // createHandler encapsulates common logic for request handling.

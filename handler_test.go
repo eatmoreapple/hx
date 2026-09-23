@@ -7,6 +7,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/eatmoreapple/hx/httpx"
@@ -229,6 +231,105 @@ func TestPipeError(t *testing.T) {
 	_, err := handler(context.Background(), Request{})
 	if err != expectedErr {
 		t.Errorf("expected error %v, got %v", expectedErr, err)
+	}
+}
+
+type token string
+
+func (token) FromRequest(*http.Request) error { return nil }
+
+func TestRequestTypeCheckedWhenBuildingHandler(t *testing.T) {
+	type request struct {
+		Name string `json:"name"`
+	}
+
+	JSON(func(context.Context, request) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, *request) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, Query) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, *Query) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, Header) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, Form) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, Cookies) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, FromPath[string]) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, *FromQuery[string]) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, Empty) (struct{}, error) { return struct{}{}, nil })
+	JSON(func(context.Context, token) (struct{}, error) { return struct{}{}, nil })
+	Render(func(context.Context, request) (httpx.ResponseRender, error) {
+		return httpx.StringResponse{Data: "ok"}, nil
+	})
+	G(func(context.Context, request) (struct{}, error) { return struct{}{}, nil }).XML()
+}
+
+func TestNonStructRequestPanicsWhenBuildingHandler(t *testing.T) {
+	assertPanic := func(t *testing.T, requestType reflect.Type, build func()) {
+		t.Helper()
+		defer func() {
+			recovered := recover()
+			if recovered == nil {
+				t.Fatalf("%s: expected panic", requestType)
+			}
+			message, ok := recovered.(string)
+			if !ok {
+				t.Fatalf("%s: expected string panic, got %T", requestType, recovered)
+			}
+			if !strings.Contains(message, requestType.String()) || !strings.Contains(message, "must be a struct") {
+				t.Fatalf("%s: unexpected panic %q", requestType, message)
+			}
+		}()
+		build()
+	}
+
+	assertPanic(t, reflect.TypeFor[map[string]any](), func() {
+		JSON(func(context.Context, map[string]any) (struct{}, error) { return struct{}{}, nil })
+	})
+	assertPanic(t, reflect.TypeFor[*map[string]any](), func() {
+		JSON(func(context.Context, *map[string]any) (struct{}, error) { return struct{}{}, nil })
+	})
+	assertPanic(t, reflect.TypeFor[[]string](), func() {
+		JSON(func(context.Context, []string) (struct{}, error) { return struct{}{}, nil })
+	})
+	assertPanic(t, reflect.TypeFor[string](), func() {
+		Render(func(context.Context, string) (httpx.ResponseRender, error) { return nil, nil })
+	})
+	assertPanic(t, reflect.TypeFor[int](), func() {
+		G(func(context.Context, int) (struct{}, error) { return struct{}{}, nil }).XML()
+	})
+}
+
+func TestJSONPointerStruct(t *testing.T) {
+	type request struct {
+		Name string `json:"name"`
+	}
+
+	handler := JSON(func(_ context.Context, req *request) (string, error) {
+		return req.Name, nil
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"name":"alice"}`))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	if err := handler(w, req); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if w.Body.String() != "\"alice\"\n" {
+		t.Fatalf("expected JSON string, got %s", w.Body.String())
+	}
+}
+
+func TestJSONQueryExtractor(t *testing.T) {
+	handler := JSON(func(_ context.Context, req Query) (int, error) {
+		return len(req), nil
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/?a=1&b=2", nil)
+	w := httptest.NewRecorder()
+
+	if err := handler(w, req); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if w.Body.String() != "2\n" {
+		t.Fatalf("expected query length 2, got %s", w.Body.String())
 	}
 }
 
