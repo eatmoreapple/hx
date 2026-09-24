@@ -5,30 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: HX 
-"
-"Report-Msgid-Bugs-To: 
-"
-"POT-Creation-Date: 2025-07-15 10:39+0800
-"
-"PO-Revision-Date: 2025-07-15 10:30+0800
-"
-"Last-Translator: eatmoreapple <dev@example.com>
-"
-"Language: zh_CN
-"
-"Language-Team: zh_CN
-"
-"Plural-Forms: nplurals=1; plural=0;
-"
-"MIME-Version: 1.0
-"
-"Content-Type: text/plain; charset=utf-8
-"
-"Content-Transfer-Encoding: 8bit
-"
-"Generated-By: Babel 2.17.0
-"
+"Project-Id-Version: HX\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-24 11:14+0800\n"
+"PO-Revision-Date: 2026-09-24 11:14+0800\n"
+"Last-Translator: eatmoreapple <dev@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: ../../api.rst:2
 msgid "API Reference"
@@ -50,7 +38,7 @@ msgstr "路由器"
 msgid "The main router that handles HTTP request routing and middleware."
 msgstr "处理 HTTP 请求路由和中间件的主路由器。"
 
-#: ../../api.rst:21 ../../api.rst:59
+#: ../../api.rst:21 ../../api.rst:63
 msgid "**Methods:**"
 msgstr ""
 
@@ -76,272 +64,443 @@ msgid ""
 "HandlerFunc)`` - HTTP method shortcuts"
 msgstr ""
 
-#: ../../api.rst:29 ../../api.rst:78 ../../api.rst:107 ../../api.rst:131
-#: ../../api.rst:259 ../../api.rst:293 ../../api.rst:364
+#: ../../api.rst:28
+msgid ""
+"``Static(pathPrefix string, root fs.FS)`` - Serves files from ``root`` "
+"under ``pathPrefix``"
+msgstr ""
+"``Static(pathPrefix string, root fs.FS)`` - 在 ``pathPrefix`` 下提供 "
+"``root`` 中的文件"
+
+#: ../../api.rst:30 ../../api.rst:94 ../../api.rst:114 ../../api.rst:139
+#: ../../api.rst:165 ../../api.rst:185 ../../api.rst:370 ../../api.rst:404
+#: ../../api.rst:518
 msgid "**Example:**"
 msgstr ""
 
-#: ../../api.rst:42
+#: ../../api.rst:46
 msgid "HandlerFunc"
 msgstr ""
 
-#: ../../api.rst:48
+#: ../../api.rst:52
 msgid "Standard handler function type that returns an error instead of void."
 msgstr "返回错误而不是 void 的标准处理器函数类型。"
 
-#: ../../api.rst:51
+#: ../../api.rst:55
 msgid "TypedHandlerFunc"
 msgstr ""
 
-#: ../../api.rst:57
+#: ../../api.rst:61
 msgid "Generic handler function with type-safe request and response handling."
 msgstr "具有类型安全请求和响应处理的通用处理器函数。"
 
-#: ../../api.rst:61
+#: ../../api.rst:65
 msgid "``JSON() HandlerFunc`` - Converts to JSON response handler"
 msgstr ""
 
-#: ../../api.rst:62
+#: ../../api.rst:66
 msgid ""
 "``String() HandlerFunc`` - Converts to string response handler (Response "
 "must be string)"
 msgstr ""
 
-#: ../../api.rst:63
+#: ../../api.rst:67
 msgid "``XML() HandlerFunc`` - Converts to XML response handler"
 msgstr ""
 
-#: ../../api.rst:66
+#: ../../api.rst:69
+msgid ""
+"``JSON()``, ``String()``, ``XML()``, and ``Render`` check the request "
+"type while the handler is built. It must be a struct, a pointer to a "
+"struct, or a type that implements ``FromRequest``. Any other type panics "
+"immediately:"
+msgstr ""
+"``JSON()``、``String()``、``XML()`` 和 ``Render`` 在构建处理器时检查请求类型。"
+"请求类型必须是结构体、结构体指针，或实现了 ``FromRequest`` 的类型。"
+"其它类型会立刻 panic："
+
+#: ../../api.rst:77
+msgid ""
+"The panic happens when the handler is built, usually while the route is "
+"registered, rather than on the first request. ``G`` itself only names the"
+" handler; the check runs when that handler is turned into a "
+"``HandlerFunc``."
+msgstr ""
+"panic 发生在构建处理器时，通常是注册路由的时候，而不是第一个请求到来时。"
+"``G`` 本身只是标明处理器；检查发生在该处理器被转换成 ``HandlerFunc`` 时。"
+
+#: ../../api.rst:82
 msgid "Handler Creation Functions"
 msgstr "处理器创建函数"
 
-#: ../../api.rst:69
+#: ../../api.rst:85
 msgid "Generic / G"
 msgstr ""
 
-#: ../../api.rst:76
+#: ../../api.rst:92
 msgid "Creates a type-safe handler with specified Request and Response types."
 msgstr "创建具有指定请求和响应类型的类型安全处理器。"
 
-#: ../../api.rst:89
+#: ../../api.rst:105
+msgid "JSON"
+msgstr ""
+
+#: ../../api.rst:111
+msgid ""
+"Converts a typed handler into a handler that serializes its response as "
+"JSON. Request and response types are inferred from the handler."
+msgstr ""
+
+#: ../../api.rst:121
 msgid "Render / R"
 msgstr ""
 
-#: ../../api.rst:96
+#: ../../api.rst:128
 msgid ""
 "Creates a handler that returns a ResponseRender for custom response "
 "handling."
 msgstr ""
 
-#: ../../api.rst:99
+#: ../../api.rst:131
 msgid "E"
 msgstr ""
 
-#: ../../api.rst:105
+#: ../../api.rst:137
 msgid "Convenience function for handlers that don't require request data."
 msgstr "不需要请求数据的处理器的便利函数。"
 
-#: ../../api.rst:118
+#: ../../api.rst:150
 msgid "Request Extraction"
-msgstr ""
+msgstr "请求提取"
 
-#: ../../api.rst:120
+#: ../../api.rst:152
 msgid ""
-"The ``httpx`` package provides types for extracting data from different "
-"parts of HTTP requests."
+"The root ``hx`` package provides shortcut aliases for the request "
+"extractor types in ``httpx``. Applications can use ``hx.FromPath``, "
+"``hx.FromQuery``, ``hx.FromHeader``, ``hx.FromForm``, and "
+"``hx.FromCookie`` directly."
 msgstr ""
+"根包 ``hx`` 为 ``httpx`` 中的请求提取器提供了快捷别名。"
+"应用可以直接使用 ``hx.FromPath``、``hx.FromQuery``、``hx.FromHeader``、"
+"``hx.FromForm`` 和 ``hx.FromCookie``。"
 
-#: ../../api.rst:123
+#: ../../api.rst:157
 msgid "FromPath"
 msgstr ""
 
-#: ../../api.rst:129
+#: ../../api.rst:163
 msgid "Extracts values from URL path parameters."
 msgstr "从 URL 路径参数中提取值。"
 
-#: ../../api.rst:145
+#: ../../api.rst:177
 msgid "FromQuery"
 msgstr ""
 
-#: ../../api.rst:151
+#: ../../api.rst:183
 msgid "Extracts values from URL query parameters."
 msgstr "从 URL 查询参数中提取值。"
 
-#: ../../api.rst:154
+#: ../../api.rst:194
 msgid "FromHeader"
 msgstr ""
 
-#: ../../api.rst:160
+#: ../../api.rst:200
 msgid "Extracts values from HTTP headers."
 msgstr "从 HTTP 请求头中提取值。"
 
-#: ../../api.rst:163
+#: ../../api.rst:203
 msgid "FromForm"
 msgstr ""
 
-#: ../../api.rst:169
+#: ../../api.rst:209
 msgid "Extracts values from form data."
 msgstr "从表单数据中提取值。"
 
-#: ../../api.rst:172
+#: ../../api.rst:212
 msgid "FromCookie"
 msgstr ""
 
-#: ../../api.rst:178
+#: ../../api.rst:218
 msgid "Extracts values from HTTP cookies."
 msgstr "从 HTTP cookies 中提取值。"
 
-#: ../../api.rst:181
-msgid "ValueNamer Interface"
+#: ../../api.rst:221
+msgid "Empty and required values"
+msgstr "空值与必填"
+
+#: ../../api.rst:223
+msgid ""
+"As a struct field, ``FromQuery``, ``FromForm``, ``FromHeader``, and "
+"``FromCookie`` treat a missing or empty value as the zero value of ``T``."
+" Tag the field ``required:\"true\"`` to return "
+"``extractor.ErrEmptyValue`` instead."
 msgstr ""
+"作为结构体字段时，``FromQuery``、``FromForm``、``FromHeader`` 和 "
+"``FromCookie`` 把缺失或空字符串当作 ``T`` 的零值。"
+"给字段加上 ``required:\"true\"`` 则会返回 ``extractor.ErrEmptyValue``。"
 
-#: ../../api.rst:189
-msgid "Interface that extraction types must implement to specify the field name."
-msgstr "提取类型必须实现的接口，用于指定字段名称。"
+#: ../../api.rst:228
+msgid ""
+"``FromPath`` is always required. The ``required`` tag does not change "
+"path parameters."
+msgstr "``FromPath`` 始终必填。``required`` 标签不会改变路径参数的行为。"
 
-#: ../../api.rst:192
+#: ../../api.rst:231
+msgid ""
+"Calling ``FromRequest`` directly, outside struct-field binding, also "
+"rejects an empty value."
+msgstr "在结构体字段绑定之外直接调用 ``FromRequest`` 时，空值同样会被拒绝。"
+
+#: ../../api.rst:243
+msgid "Value Interface"
+msgstr "Value 接口"
+
+#: ../../api.rst:256
+msgid ""
+"``T`` is parsed from the raw request string. Predeclared types such as "
+"``int`` and ``string`` are converted directly; defined types (``type "
+"UserID int``) use the same underlying kind so they can also implement "
+"``ValueNamer``."
+msgstr ""
+"``T`` 从原始请求字符串解析。``int``、``string`` 这类预声明类型会直接转换；"
+"定义类型（``type UserID int``）按相同的底层种类转换，因此也可以实现 ``ValueNamer``。"
+
+#: ../../api.rst:261
+msgid ""
+"When an extractor is a struct field, its request value name is resolved "
+"from the first non-empty source in this order: ``hx`` tag, extractor-"
+"specific tag (``path``, ``query``, ``header``, ``form``, or ``cookie``), "
+"then the Go field name:"
+msgstr ""
+"提取器作为结构体字段时，请求值名称按以下顺序取第一个非空来源："
+"``hx`` 标签、提取器自己的标签（``path``、``query``、``header``、``form`` 或 ``cookie``），"
+"最后是 Go 字段名："
+
+#: ../../api.rst:275
+msgid "ValueNamer Interface"
+msgstr "ValueNamer 接口"
+
+#: ../../api.rst:283
+msgid ""
+"Optional interface for reusable named value types. Only defined types can"
+" implement it (predeclared ``int`` and ``string`` cannot have methods). A"
+" non-empty ``ValueName`` takes precedence over all struct-field metadata."
+" Direct extraction outside a struct requires ``ValueName`` and otherwise "
+"returns ``ErrValueNameRequired``."
+msgstr ""
+"供可复用命名值类型实现的可选接口。只有定义类型能实现它"
+"（预声明的 ``int`` 和 ``string`` 不能有方法）。"
+"非空的 ``ValueName`` 优先于所有结构体字段元数据。"
+"在结构体之外直接提取时必须提供 ``ValueName``，否则返回 ``ErrValueNameRequired``。"
+
+#: ../../api.rst:299
+msgid ""
+"``NamedValue`` combines ``Value`` and ``ValueNamer`` for generic code "
+"that requires a value to provide its own name."
+msgstr ""
+"``NamedValue`` 组合了 ``Value`` 和 ``ValueNamer``，"
+"供要求值自己提供名称的泛型代码使用。"
+
+#: ../../api.rst:303
 msgid "Response Types"
 msgstr "响应类型"
 
-#: ../../api.rst:195
+#: ../../api.rst:306
 msgid "ResponseRender Interface"
 msgstr ""
 
-#: ../../api.rst:203
+#: ../../api.rst:314
 msgid "Interface for custom response rendering."
 msgstr "自定义响应渲染的接口。"
 
-#: ../../api.rst:206
+#: ../../api.rst:317
 msgid "JSONResponse"
 msgstr ""
 
-#: ../../api.rst:214
+#: ../../api.rst:325
 msgid "Renders response as JSON."
 msgstr "将响应渲染为 JSON。"
 
-#: ../../api.rst:217
+#: ../../api.rst:328
 msgid "StringResponse"
 msgstr ""
 
-#: ../../api.rst:225
+#: ../../api.rst:336
 msgid "Renders response as plain text."
 msgstr "将响应渲染为纯文本。"
 
-#: ../../api.rst:228
+#: ../../api.rst:339
 msgid "XMLResponse"
 msgstr ""
 
-#: ../../api.rst:236
+#: ../../api.rst:347
 msgid "Renders response as XML."
 msgstr "将响应渲染为 XML。"
 
-#: ../../api.rst:239
+#: ../../api.rst:350
 msgid "Middleware"
 msgstr "中间件"
 
-#: ../../api.rst:242
+#: ../../api.rst:353
 msgid "Middleware Type"
 msgstr ""
 
-#: ../../api.rst:248
+#: ../../api.rst:359
 msgid "Function type for middleware that wraps handlers."
 msgstr "包装处理器的中间件的函数类型。"
 
-#: ../../api.rst:251
+#: ../../api.rst:362
 msgid "Chain"
 msgstr ""
 
-#: ../../api.rst:257
+#: ../../api.rst:368
 msgid "Chains multiple middleware functions together."
 msgstr "将多个中间件函数链接在一起。"
 
-#: ../../api.rst:273
+#: ../../api.rst:384
 msgid "Router Options"
 msgstr "路由器选项"
 
-#: ../../api.rst:276
+#: ../../api.rst:387
 msgid "WithErrorHandler"
 msgstr ""
 
-#: ../../api.rst:282
+#: ../../api.rst:393
 msgid "Sets a custom error handler for the router."
 msgstr "为路由器设置自定义错误处理器。"
 
-#: ../../api.rst:285
+#: ../../api.rst:396
 msgid "WithMiddleware"
 msgstr ""
 
-#: ../../api.rst:291
+#: ../../api.rst:402
 msgid "Adds middleware to the router during creation."
 msgstr "在创建期间向路由器添加中间件。"
 
-#: ../../api.rst:303
+#: ../../api.rst:414
 msgid "Binding"
 msgstr "绑定"
 
-#: ../../api.rst:306
+#: ../../api.rst:417
 msgid "ShouldBind"
 msgstr ""
 
-#: ../../api.rst:312
+#: ../../api.rst:423
 msgid ""
 "Binds request data to the given interface using appropriate binders based"
 " on Content-Type."
 msgstr ""
 
-#: ../../api.rst:315
+#: ../../api.rst:426
 msgid "Binder Interface"
 msgstr ""
 
-#: ../../api.rst:323
+#: ../../api.rst:434
 msgid "Interface for request data binding implementations."
 msgstr "请求数据绑定实现的接口。"
 
-#: ../../api.rst:325
+#: ../../api.rst:436
 msgid "Available binders:"
 msgstr "可用的绑定器："
 
-#: ../../api.rst:327
+#: ../../api.rst:438
 msgid "``JSONBinder`` - Binds JSON request bodies"
 msgstr ""
 
-#: ../../api.rst:328
+#: ../../api.rst:439
 msgid "``XMLBinder`` - Binds XML request bodies"
 msgstr ""
 
-#: ../../api.rst:329
+#: ../../api.rst:440
 msgid "``FormBinder`` - Binds form data (multipart and URL-encoded)"
 msgstr ""
 
-#: ../../api.rst:330
+#: ../../api.rst:441
 msgid "``QueryBinder`` - Binds URL query parameters"
 msgstr ""
 
-#: ../../api.rst:333
+#: ../../api.rst:444
+msgid "Form Value Decoding"
+msgstr ""
+
+#: ../../api.rst:446
+msgid ""
+"The ``encoding/form`` package provides the form and query value decoder "
+"used by ``FormBinder`` and ``QueryBinder``:"
+msgstr ""
+
+#: ../../api.rst:453
+msgid "Multipart file headers can be decoded separately:"
+msgstr ""
+
+#: ../../api.rst:459
+msgid ""
+"Fields can override the default scalar or slice conversion by "
+"implementing:"
+msgstr ""
+
+#: ../../api.rst:468
 msgid "Error Handling"
 msgstr "错误处理"
 
-#: ../../api.rst:336
+#: ../../api.rst:471
 msgid "ErrorHandler"
 msgstr ""
 
-#: ../../api.rst:342
+#: ../../api.rst:477
 msgid "Function type for handling errors returned by handlers."
 msgstr "处理由处理器返回的错误的函数类型。"
 
-#: ../../api.rst:344
+#: ../../api.rst:480
+msgid "ExtractError"
+msgstr "ExtractError"
+
+#: ../../api.rst:489
+msgid ""
+"Failures from ``FromRequest`` and ``FromRequestField`` are returned as "
+"``*httpx.ExtractError``. ``Field`` is the struct field name when a field "
+"is bound. When the request type itself implements ``FromRequest``, "
+"``Field`` is that type's name."
+msgstr ""
+"``FromRequest`` 和 ``FromRequestField`` 的失败会作为 ``*httpx.ExtractError`` 返回。"
+"绑定字段时，``Field`` 是结构体字段名。"
+"请求类型本身实现了 ``FromRequest`` 时，``Field`` 是该类型的名字。"
+
+#: ../../api.rst:494
+msgid ""
+"``Unwrap`` returns the original error, so ``errors.Is`` and ``errors.As``"
+" still match ``extractor.ErrEmptyValue`` and "
+"``httpx.ErrValueNameRequired``. An error that already unwraps to "
+"``ExtractError`` is not wrapped again."
+msgstr ""
+"``Unwrap`` 返回原始错误，因此 ``errors.Is`` 和 ``errors.As`` "
+"仍然能匹配 ``extractor.ErrEmptyValue`` 和 ``httpx.ErrValueNameRequired``。"
+"已经能 unwrap 到 ``ExtractError`` 的错误不会被再次包装。"
+
+#: ../../api.rst:498
 msgid "**Default Error Handler:**"
 msgstr ""
 
-#: ../../api.rst:353
+#: ../../api.rst:507
 msgid "Utilities"
 msgstr "工具"
 
-#: ../../api.rst:356
+#: ../../api.rst:510
 msgid "Warp"
 msgstr ""
 
-#: ../../api.rst:362
+#: ../../api.rst:516
 msgid "Wraps a standard ``http.HandlerFunc`` into HX's ``HandlerFunc``."
 msgstr ""
+
+#~ msgid ""
+#~ "The ``httpx`` package provides types for"
+#~ " extracting data from different parts "
+#~ "of HTTP requests."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Interface that extraction types must "
+#~ "implement to specify the field name."
+#~ msgstr "提取类型必须实现的接口，用于指定字段名称。"
 

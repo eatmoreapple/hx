@@ -25,6 +25,7 @@ The main router that handles HTTP request routing and middleware.
 * ``Use(middleware ...Middleware)`` - Adds middleware to the router
 * ``Handle(method, path string, handler HandlerFunc)`` - Registers a route
 * ``GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD(path string, handler HandlerFunc)`` - HTTP method shortcuts
+* ``Static(pathPrefix string, root fs.FS)`` - Serves files from ``root`` under ``pathPrefix``
 
 **Example:**
 
@@ -33,10 +34,13 @@ The main router that handles HTTP request routing and middleware.
    router := hx.New()
    router.GET("/users", handler)
    router.POST("/users", handler)
-   
+
    // Route groups
    api := router.Group("/api/v1")
    api.GET("/users", handler)  // Maps to /api/v1/users
+
+   // /assets/js/main.js serves ./public/assets/js/main.js
+   router.Static("/assets", os.DirFS("./public/assets"))
 
 HandlerFunc
 ~~~~~~~~~~~
@@ -61,6 +65,18 @@ Generic handler function with type-safe request and response handling.
 * ``JSON() HandlerFunc`` - Converts to JSON response handler
 * ``String() HandlerFunc`` - Converts to string response handler (Response must be string)
 * ``XML() HandlerFunc`` - Converts to XML response handler
+
+``JSON()``, ``String()``, ``XML()``, and ``Render`` check the request type
+while the handler is built. It must be a struct, a pointer to a struct, or a
+type that implements ``FromRequest``. Any other type panics immediately:
+
+.. code-block:: text
+
+   hx: request type ... must be a struct, a pointer to a struct, or implement FromRequest
+
+The panic happens when the handler is built, usually while the route is
+registered, rather than on the first request. ``G`` itself only names the
+handler; the check runs when that handler is turned into a ``HandlerFunc``.
 
 Handler Creation Functions
 --------------------------
@@ -116,7 +132,7 @@ E
 
 .. code-block:: go
 
-   func E[Response any](h func(ctx context.Context) (Response, error)) TypedHandlerFunc[httpx.Empty, Response]
+   func E[Response any](h func(ctx context.Context) (Response, error)) TypedHandlerFunc[hx.Empty, Response]
 
 Convenience function for handlers that don't require request data.
 
@@ -200,6 +216,28 @@ FromCookie
    type FromCookie[T Value]
 
 Extracts values from HTTP cookies.
+
+Empty and required values
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As a struct field, ``FromQuery``, ``FromForm``, ``FromHeader``, and
+``FromCookie`` treat a missing or empty value as the zero value of ``T``.
+Tag the field ``required:"true"`` to return ``extractor.ErrEmptyValue``
+instead.
+
+``FromPath`` is always required. The ``required`` tag does not change path
+parameters.
+
+Calling ``FromRequest`` directly, outside struct-field binding, also rejects
+an empty value.
+
+.. code-block:: go
+
+   type Request struct {
+       Page FromQuery[int]    `hx:"page"`              // missing page is 0
+       Q    FromQuery[string] `hx:"q" required:"true"` // missing q is ErrEmptyValue
+       ID   FromPath[int]     `hx:"id"`                // path parameters are always required
+   }
 
 Value Interface
 ~~~~~~~~~~~~~~~
@@ -437,6 +475,25 @@ ErrorHandler
    type ErrorHandler func(w http.ResponseWriter, r *http.Request, err error)
 
 Function type for handling errors returned by handlers.
+
+ExtractError
+~~~~~~~~~~~~
+
+.. code-block:: go
+
+   type ExtractError struct {
+       Field string
+       Err   error
+   }
+
+Failures from ``FromRequest`` and ``FromRequestField`` are returned as
+``*httpx.ExtractError``. ``Field`` is the struct field name when a field is
+bound. When the request type itself implements ``FromRequest``, ``Field`` is
+that type's name.
+
+``Unwrap`` returns the original error, so ``errors.Is`` and ``errors.As``
+still match ``extractor.ErrEmptyValue`` and ``httpx.ErrValueNameRequired``.
+An error that already unwraps to ``ExtractError`` is not wrapped again.
 
 **Default Error Handler:**
 

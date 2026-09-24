@@ -62,6 +62,10 @@ You should see a response like:
 }
 ```
 
+A handler request must be a struct, a pointer to a struct, or a type that implements `FromRequest`. `hx.JSON`, `String()`, `XML()`, and `Render` check this when the handler is built.
+
+`FromQuery`, `FromForm`, `FromHeader`, and `FromCookie` fields use the zero value when the request value is missing, unless the field is tagged ``required:"true"``. `FromPath` is always required. Extractor failures are returned as `*httpx.ExtractError` and still unwrap to the original error.
+
 ## Documentation
 
 📖 **[English Documentation](https://hx.readthedocs.io/en/latest/)** | **[简体中文文档](https://hx.readthedocs.io/zh_CN/latest/)**
