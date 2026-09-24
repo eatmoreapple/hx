@@ -58,11 +58,16 @@ Let's create a simple REST API that demonstrates HX's core features:
    func main() {
        router := hx.New()
        
-       // Register a JSON endpoint
+       // Register a JSON endpoint.
+       // JSON() checks the request type while the handler is built.
        router.GET("/user/{id}", hx.G(getUserInfo).JSON())
        
        http.ListenAndServe(":8080", router)
    }
+
+The request type must be a struct, a pointer to a struct, or a type that
+implements ``FromRequest``. ``JSON()``, ``String()``, ``XML()``, and
+``Render`` panic for any other type at build time.
 
 Test the application by visiting:
 http://localhost:8080/user/123?name=john
@@ -132,6 +137,21 @@ Headers
        Auth FromHeader[string] `json:"auth" hx:"authorization"`
    }
 
+Optional Values
+~~~~~~~~~~~~~~~
+
+Query, form, header, and cookie fields use the zero value when the request
+value is missing or empty. Add ``required:"true"`` when that value must be
+present. Path parameters are always required.
+
+.. code-block:: go
+
+   type ListRequest struct {
+       Page  FromQuery[int]    `hx:"page"`              // missing page is 0
+       Query FromQuery[string] `hx:"q" required:"true"` // missing q fails extraction
+       ID    FromPath[int]     `hx:"id"`                // always required
+   }
+
 Response Formats
 ----------------
 
@@ -184,7 +204,9 @@ XML Response
 Error Handling
 --------------
 
-HX provides built-in error handling. Simply return an error from your handler:
+HX provides built-in error handling. Simply return an error from your handler.
+Extractor failures arrive as ``*httpx.ExtractError`` and still unwrap to the
+original error, including ``extractor.ErrEmptyValue``:
 
 .. code-block:: go
 

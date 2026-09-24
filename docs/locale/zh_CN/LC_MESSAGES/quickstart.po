@@ -5,30 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: HX 
-"
-"Report-Msgid-Bugs-To: 
-"
-"POT-Creation-Date: 2025-07-15 10:39+0800
-"
-"PO-Revision-Date: 2025-07-15 10:30+0800
-"
-"Last-Translator: eatmoreapple <dev@example.com>
-"
-"Language: zh_CN
-"
-"Language-Team: zh_CN
-"
-"Plural-Forms: nplurals=1; plural=0;
-"
-"MIME-Version: 1.0
-"
-"Content-Type: text/plain; charset=utf-8
-"
-"Content-Transfer-Encoding: 8bit
-"
-"Generated-By: Babel 2.17.0
-"
+"Project-Id-Version: HX\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-24 11:14+0800\n"
+"PO-Revision-Date: 2026-09-24 11:14+0800\n"
+"Last-Translator: eatmoreapple <dev@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: ../../quickstart.rst:2
 msgid "Quick Start"
@@ -76,93 +64,125 @@ msgstr "您的第一个 HX 应用程序"
 msgid "Let's create a simple REST API that demonstrates HX's core features:"
 msgstr "让我们创建一个简单的 REST API 来演示 HX 的核心特性："
 
-#: ../../quickstart.rst:80
+#: ../../quickstart.rst:68
+msgid ""
+"The request type must be a struct, a pointer to a struct, or a type that "
+"implements ``FromRequest``. ``JSON()``, ``String()``, ``XML()``, and "
+"``Render`` panic for any other type at build time."
+msgstr ""
+"请求类型必须是结构体、结构体指针，或实现了 ``FromRequest`` 的类型。"
+"``JSON()``、``String()``、``XML()`` 和 ``Render`` 对其它类型会在构建时 panic。"
+
+#: ../../quickstart.rst:72
 msgid "Test the application by visiting: http://localhost:8080/user/123?name=john"
 msgstr ""
 
-#: ../../quickstart.rst:83
+#: ../../quickstart.rst:75
 msgid "You should see a JSON response like:"
 msgstr ""
 
-#: ../../quickstart.rst:95
+#: ../../quickstart.rst:87
 msgid "Request Data Extraction"
 msgstr "请求数据提取"
 
-#: ../../quickstart.rst:97
+#: ../../quickstart.rst:89
 msgid "HX provides several ways to extract data from HTTP requests:"
 msgstr "HX 提供了几种从 HTTP 请求中提取数据的方法："
 
-#: ../../quickstart.rst:100
+#: ../../quickstart.rst:92
 msgid "Query Parameters"
 msgstr "查询参数"
 
-#: ../../quickstart.rst:111
+#: ../../quickstart.rst:103
 msgid "Form Data"
 msgstr "表单数据"
 
-#: ../../quickstart.rst:121
+#: ../../quickstart.rst:113
 msgid "JSON Body"
 msgstr "JSON 主体"
 
-#: ../../quickstart.rst:131
+#: ../../quickstart.rst:123
 msgid "Path Parameters"
 msgstr "路径参数"
 
-#: ../../quickstart.rst:143
+#: ../../quickstart.rst:132
 msgid "Headers"
 msgstr "请求头"
 
-#: ../../quickstart.rst:155
+#: ../../quickstart.rst:141
+msgid "Optional Values"
+msgstr "可选值"
+
+#: ../../quickstart.rst:143
+msgid ""
+"Query, form, header, and cookie fields use the zero value when the "
+"request value is missing or empty. Add ``required:\"true\"`` when that "
+"value must be present. Path parameters are always required."
+msgstr ""
+"查询、表单、请求头和 cookie 字段在请求值缺失或为空时使用零值。"
+"该值必须存在时加上 ``required:\"true\"``。路径参数始终必填。"
+
+#: ../../quickstart.rst:156
 msgid "Response Formats"
 msgstr "响应格式"
 
-#: ../../quickstart.rst:157
+#: ../../quickstart.rst:158
 msgid "HX supports multiple response formats:"
 msgstr "HX 支持多种响应格式："
 
-#: ../../quickstart.rst:160
+#: ../../quickstart.rst:161
 msgid "JSON Response"
 msgstr "JSON 响应"
 
-#: ../../quickstart.rst:174
+#: ../../quickstart.rst:175
 msgid "String Response"
 msgstr "字符串响应"
 
-#: ../../quickstart.rst:185
+#: ../../quickstart.rst:186
 msgid "XML Response"
 msgstr "XML 响应"
 
-#: ../../quickstart.rst:204
+#: ../../quickstart.rst:205
 msgid "Error Handling"
 msgstr "错误处理"
 
-#: ../../quickstart.rst:206
+#: ../../quickstart.rst:207
 msgid ""
 "HX provides built-in error handling. Simply return an error from your "
-"handler:"
+"handler. Extractor failures arrive as ``*httpx.ExtractError`` and still "
+"unwrap to the original error, including ``extractor.ErrEmptyValue``:"
 msgstr ""
+"HX 提供内置错误处理。从处理器返回错误即可。"
+"提取失败会作为 ``*httpx.ExtractError`` 到达，并且仍然能 unwrap 到原始错误，"
+"包括 ``extractor.ErrEmptyValue``："
 
-#: ../../quickstart.rst:216
+#: ../../quickstart.rst:219
 msgid "You can also customize error handling:"
 msgstr "您也可以自定义错误处理："
 
-#: ../../quickstart.rst:227
+#: ../../quickstart.rst:230
 msgid "Next Steps"
 msgstr "下一步"
 
-#: ../../quickstart.rst:229
+#: ../../quickstart.rst:232
 msgid "Now that you understand the basics, explore these topics:"
 msgstr "现在您了解了基础知识，探索这些主题："
 
-#: ../../quickstart.rst:231
+#: ../../quickstart.rst:234
 msgid ":doc:`api` - Detailed API reference"
 msgstr ""
 
-#: ../../quickstart.rst:232
+#: ../../quickstart.rst:235
 msgid ":doc:`examples` - More examples and use cases"
 msgstr ""
 
-#: ../../quickstart.rst:233
+#: ../../quickstart.rst:236
 msgid ":doc:`advanced` - Advanced features like middleware and custom extractors"
 msgstr ""
+
+#~ msgid ""
+#~ "HX provides built-in error handling. "
+#~ "Simply return an error from your "
+#~ "handler:"
+#~ msgstr ""
 
