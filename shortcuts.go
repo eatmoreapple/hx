@@ -2,13 +2,15 @@ package hx
 
 import "github.com/eatmoreapple/hx/httpx/extractor"
 
+type Value = extractor.Value
+
 // Single-value request extractor shortcuts.
 type (
-	FromPath[T extractor.Value]   = extractor.PathValueExtractor[T]
-	FromHeader[T extractor.Value] = extractor.HeaderValueExtractor[T]
-	FromQuery[T extractor.Value]  = extractor.QueryValueExtractor[T]
-	FromForm[T extractor.Value]   = extractor.FormValueExtractor[T]
-	FromCookie[T extractor.Value] = extractor.CookieValueExtractor[T]
+	FromPath[T Value]   = extractor.PathValueExtractor[T]
+	FromHeader[T Value] = extractor.HeaderValueExtractor[T]
+	FromQuery[T Value]  = extractor.QueryValueExtractor[T]
+	FromForm[T Value]   = extractor.FormValueExtractor[T]
+	FromCookie[T Value] = extractor.CookieValueExtractor[T]
 )
 
 // Complete request data extractor shortcuts.
