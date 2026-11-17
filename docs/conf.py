@@ -25,13 +25,11 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# Internationalization
+# Internationalization. Read the Docs builds English here.
+# The Chinese project builds the same sources with language zh_CN.
 language = 'en'
 locale_dirs = ['locale/']
 gettext_compact = False
-
-# Supported languages
-languages = ['en', 'zh_CN']
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -39,7 +37,6 @@ languages = ['en', 'zh_CN']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
-# Theme options for language switching
 html_theme_options = {
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
@@ -59,19 +56,6 @@ html_theme_options = {
 html_css_files = [
     'css/custom.css',
 ]
-
-# Language selector
-html_context = {
-    'current_language': 'en',
-    'languages': [
-        ('en', 'English'),
-        ('zh_CN', '中文'),
-    ],
-    'language_links': True,
-    # ReadTheDocs specific
-    'current_version': 'latest',
-    'versions': [('latest', 'latest')],
-}
 
 # -- Options for LaTeX output ------------------------------------------------
 

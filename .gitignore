@@ -74,12 +74,18 @@ go.work
 *.log
 
 # Documentation specific
-docs/locale/*/LC_MESSAGES/*.mo
 docs/.doctrees/
 docs/_build/
 docs/_static/.doctrees/
+docs/**/*.mo
+docs/locale/**/locale/
 
-# Translation temp files
-docs/translate.py
-docs/simple_translate.py
-docs/fix_po_headers.py
+# Obsolete documentation build scripts
+docs/build-complete.sh
+docs/build-multilang.sh
+docs/complete_translate.py
+docs/rtd_build.py
+docs/rtd_translate.py
+
+# Local IDE state
+.openidea/
