@@ -136,31 +136,6 @@ func (h TypedHandlerFunc[Request, Response]) XML() HandlerFunc {
 	return handler.asHandlerFunc()
 }
 
-// Pipe composes the handler with a series of middleware functions.
-// Each middleware function has the signature func(ctx context.Context, req Request) error
-// and can perform operations such as logging, authentication, or request modification.
-// The middleware functions are executed in the order they are provided before the main handler is called.
-//
-// Note: When chaining multiple Pipe calls, the execution order is reversed.
-// For example, with hx.G(app).Pipe(app2).Pipe(app3), app3 will execute first,
-// followed by app2, and finally app (the original handler).
-func (h TypedHandlerFunc[Request, Response]) Pipe(steps ...func(ctx context.Context, req Request) error) TypedHandlerFunc[Request, Response] {
-	if len(steps) == 0 {
-		return h
-	}
-	return func(ctx context.Context, request Request) (resp Response, err error) {
-		// Execute middleware functions in order
-		for _, middleware := range steps {
-			if err := middleware(ctx, request); err != nil {
-				return resp, err
-			}
-		}
-
-		// Execute the final handler
-		return h(ctx, request)
-	}
-}
-
 // requestHandler is an internal type that handles the processing of requests
 // and produces a ResponseRender for rendering the response.
 type requestHandler[Request any] func(context.Context, Request) (httpx.ResponseRender, error)

@@ -3,6 +3,7 @@ package hx
 import (
 	"context"
 	"net/http"
+	"slices"
 )
 
 // Middleware represents a function that wraps a HandlerFunc and returns a new HandlerFunc.
@@ -23,8 +24,8 @@ func Chain(middlewares ...Middleware) Middleware {
 		return func(next HandlerFunc) HandlerFunc { return next }
 	}
 	return func(next HandlerFunc) HandlerFunc {
-		for i := len(middlewares) - 1; i >= 0; i-- {
-			next = middlewares[i](next)
+		for _, middleware := range slices.Backward(middlewares) {
+			next = middleware(next)
 		}
 		return next
 	}
