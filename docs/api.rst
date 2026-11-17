@@ -349,6 +349,16 @@ Renders response as XML.
 Middleware
 ----------
 
+HX has two middleware layers.
+
+Router middleware wraps a ``HandlerFunc``. It runs before the request is bound
+and can see ``http.ResponseWriter`` and ``*http.Request``. Register it with
+``Router.Use`` or ``Chain``.
+
+Handler middleware wraps a typed handler. It runs after binding and can see
+the typed request and response. Build it with ``Pipe`` and finish it with
+``Handle``.
+
 Middleware Type
 ~~~~~~~~~~~~~~~
 
@@ -356,7 +366,8 @@ Middleware Type
 
    type Middleware func(HandlerFunc) HandlerFunc
 
-Function type for middleware that wraps handlers.
+Function type for router middleware. It wraps a ``HandlerFunc`` and runs
+before the request is bound.
 
 Chain
 ~~~~~
@@ -379,6 +390,82 @@ Chains multiple middleware functions together.
    }
    
    router.Use(loggingMiddleware)
+
+HandlerMiddleware
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: go
+
+   type HandlerMiddleware[Request, Response any] func(ctx context.Context, req Request, next TypedHandlerFunc[Request, Response]) (Response, error)
+
+Middleware for a typed handler. It runs after the request is bound.
+
+Call ``next`` with the context and request that the rest of the chain should
+see. Skip ``next`` to stop the chain. The inner middleware and the handler do
+not run, and the returned response becomes the result. Middleware outside this
+one still continues after ``next`` returns.
+
+``JSON()``, ``String()``, and ``XML()`` write the response only when the error
+is nil. A middleware that returns both a response and an error drops the
+response, and the router handles the error.
+
+HandlerChain
+~~~~~~~~~~~~
+
+.. code-block:: go
+
+   type HandlerChain[Request, Response any] []HandlerMiddleware[Request, Response]
+
+An ordered list of handler middleware. The first middleware runs first, and
+its code after ``next`` runs last.
+
+Pipe
+~~~~
+
+.. code-block:: go
+
+   func Pipe[Request, Response any](middlewares ...HandlerMiddleware[Request, Response]) HandlerChain[Request, Response]
+
+Returns a chain that runs ``middlewares`` from left to right. The returned
+chain is a copy, so later changes to the caller's slice do not affect it.
+An empty call returns a nil chain.
+
+**Example:**
+
+.. code-block:: go
+
+   func trimName(ctx context.Context, req CreateUser, next hx.TypedHandlerFunc[CreateUser, User]) (User, error) {
+       req.Name = strings.TrimSpace(req.Name)
+       return next(ctx, req)
+   }
+
+   func audit(ctx context.Context, req CreateUser, next hx.TypedHandlerFunc[CreateUser, User]) (User, error) {
+       user, err := next(ctx, req)
+       log.Printf("created %s: %v", req.Name, err)
+       return user, err
+   }
+
+   router.POST("/users", hx.Pipe(trimName, audit).Handle(createUser).JSON())
+
+``trimName`` runs first, then ``audit``, then ``createUser``. The same chain
+can wrap more than one handler:
+
+.. code-block:: go
+
+   users := hx.Pipe(trimName, audit)
+   router.POST("/users", users.Handle(createUser).JSON())
+   router.PUT("/users/{id}", users.Handle(updateUser).JSON())
+
+Handle
+~~~~~~
+
+.. code-block:: go
+
+   func (c HandlerChain[Request, Response]) Handle(h TypedHandlerFunc[Request, Response]) TypedHandlerFunc[Request, Response]
+
+Ends the chain with ``h``. Middleware runs first, then ``h``. An empty chain
+returns ``h`` unchanged. Call ``JSON()``, ``String()``, or ``XML()`` on the
+result to register it as a route.
 
 Router Options
 --------------

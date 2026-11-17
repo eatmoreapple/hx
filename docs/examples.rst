@@ -374,6 +374,53 @@ Test the middleware:
    # Protected endpoint with auth (works)
    curl -H "Authorization: Bearer valid-token" http://localhost:8080/api/protected
 
+Handler Middleware Example
+--------------------------
+
+Router middleware runs before binding. Handler middleware runs after binding,
+so it can read and replace the typed request. ``Pipe`` runs from left to
+right. ``Handle`` ends the chain with the handler.
+
+.. code-block:: go
+
+   package main
+
+   import (
+       "context"
+       "fmt"
+       "net/http"
+       "strings"
+
+       "github.com/eatmoreapple/hx"
+   )
+
+   type CreateUser struct {
+       Name string `json:"name"`
+   }
+
+   func normalize(ctx context.Context, req CreateUser, next hx.TypedHandlerFunc[CreateUser, map[string]string]) (map[string]string, error) {
+       req.Name = strings.TrimSpace(req.Name)
+       if req.Name == "" {
+           return nil, fmt.Errorf("name is required")
+       }
+       return next(ctx, req)
+   }
+
+   func createUser(ctx context.Context, req CreateUser) (map[string]string, error) {
+       return map[string]string{"name": req.Name}, nil
+   }
+
+   func main() {
+       router := hx.New()
+       router.POST("/users", hx.Pipe(normalize).Handle(createUser).JSON())
+
+       fmt.Println("Server starting on :8080")
+       http.ListenAndServe(":8080", router)
+   }
+
+Returning from ``normalize`` without calling ``next`` skips ``createUser``.
+The returned error is handled by the router.
+
 Custom Error Handling
 ----------------------
 

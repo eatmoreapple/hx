@@ -501,15 +501,6 @@ Request Validation
        Validate() error
    }
 
-   // Validation middleware
-   func validationMiddleware(next hx.HandlerFunc) hx.HandlerFunc {
-       return func(w http.ResponseWriter, r *http.Request) error {
-           // This middleware would need to be applied at the handler level
-           // for access to the typed request
-           return next(w, r)
-       }
-   }
-
    // User creation request with validation
    type CreateUserRequest struct {
        Name     string `json:"name" form:"name"`
@@ -557,13 +548,14 @@ Request Validation
        return nil
    }
 
-   func createUserHandler(ctx context.Context, req CreateUserRequest) (map[string]interface{}, error) {
-       // Validate request
+   func validateCreateUser(ctx context.Context, req CreateUserRequest, next hx.TypedHandlerFunc[CreateUserRequest, map[string]interface{}]) (map[string]interface{}, error) {
        if err := req.Validate(); err != nil {
            return nil, err
        }
+       return next(ctx, req)
+   }
 
-       // Process valid request
+   func createUserHandler(ctx context.Context, req CreateUserRequest) (map[string]interface{}, error) {
        return map[string]interface{}{
            "message": "User created successfully",
            "user": map[string]interface{}{
@@ -577,7 +569,7 @@ Request Validation
    func main() {
        router := hx.New()
 
-       router.POST("/users", hx.G(createUserHandler).JSON())
+       router.POST("/users", hx.Pipe(validateCreateUser).Handle(createUserHandler).JSON())
 
        fmt.Println("Server starting on :8080")
        fmt.Println("Test with: curl -X POST http://localhost:8080/users -H 'Content-Type: application/json' -d '{\"name\":\"John\",\"email\":\"john@example.com\",\"password\":\"password123\",\"age\":25}'")

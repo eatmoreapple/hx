@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -170,67 +169,6 @@ func TestXML(t *testing.T) {
 
 	if resp.Message != "hello" {
 		t.Errorf("expected message %s, got %s", "hello", resp.Message)
-	}
-}
-
-func TestPipe(t *testing.T) {
-	type Request struct{}
-	type Response struct{}
-
-	var steps []string
-
-	middleware1 := func(ctx context.Context, req Request) error {
-		steps = append(steps, "m1")
-		return nil
-	}
-
-	middleware2 := func(ctx context.Context, req Request) error {
-		steps = append(steps, "m2")
-		return nil
-	}
-
-	handler := G(func(ctx context.Context, req Request) (Response, error) {
-		steps = append(steps, "handler")
-		return Response{}, nil
-	}).Pipe(middleware1, middleware2)
-
-	// Pipe returns TypedHandlerFunc, we need to convert it to HandlerFunc to execute or just call it directly if we could.
-	// But TypedHandlerFunc is a function type, so we can call it.
-
-	_, err := handler(context.Background(), Request{})
-	if err != nil {
-		t.Errorf("expected no error, got %v", err)
-	}
-
-	expected := []string{"m1", "m2", "handler"}
-	if len(steps) != len(expected) {
-		t.Errorf("expected %d steps, got %d", len(expected), len(steps))
-	}
-
-	for i, step := range steps {
-		if step != expected[i] {
-			t.Errorf("expected step %d to be %s, got %s", i, expected[i], step)
-		}
-	}
-}
-
-func TestPipeError(t *testing.T) {
-	type Request struct{}
-	type Response struct{}
-
-	expectedErr := errors.New("middleware error")
-
-	middleware := func(ctx context.Context, req Request) error {
-		return expectedErr
-	}
-
-	handler := G(func(ctx context.Context, req Request) (Response, error) {
-		return Response{}, nil
-	}).Pipe(middleware)
-
-	_, err := handler(context.Background(), Request{})
-	if err != expectedErr {
-		t.Errorf("expected error %v, got %v", expectedErr, err)
 	}
 }
 
