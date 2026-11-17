@@ -30,13 +30,18 @@ function switchLanguage() {
         }
     } else {
         // ReadTheDocs production - handle both structures
-        if (window.location.hostname.includes('readthedocs.io')) {
-            // ReadTheDocs structure
-            if (lang === 'en') {
-                newPath = '/en/latest' + pathWithoutLang;
-            } else if (lang === 'zh_CN') {
-                newPath = '/zh_CN/latest' + pathWithoutLang;
+        if (window.location.hostname.indexOf('readthedocs.io') !== -1) {
+            var page = currentPath
+                .replace(/^\/(?:en|zh-cn|zh_CN)\/latest/, '')
+                .replace(/^\/zh_CN/, '');
+            if (page.charAt(0) !== '/') {
+                page = '/' + page;
             }
+            var site = lang === 'zh_CN'
+                ? 'https://hx-zh-cn.readthedocs.io/zh-cn/latest'
+                : 'https://hx.readthedocs.io/en/latest';
+            window.location.href = site + page + currentSearch + currentHash;
+            return;
         } else {
             // Generic production
             if (lang === 'en') {
@@ -56,7 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var select = document.getElementById('language-select');
     if (select) {
         var currentPath = window.location.pathname;
-        if (currentPath.includes('/zh_CN/')) {
+        if (window.location.hostname === 'hx-zh-cn.readthedocs.io' ||
+            currentPath.indexOf('/zh-cn/') === 0 ||
+            currentPath.indexOf('/zh_CN/') === 0) {
             select.value = 'zh_CN';
         } else {
             select.value = 'en';

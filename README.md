@@ -68,7 +68,7 @@ A handler request must be a struct, a pointer to a struct, or a type that implem
 
 ## Documentation
 
-📖 **[English Documentation](https://hx.readthedocs.io/en/latest/)** | **[简体中文文档](https://hx.readthedocs.io/zh_CN/latest/)**
+📖 **[English Documentation](https://hx.readthedocs.io/en/latest/)** | **[简体中文文档](https://hx-zh-cn.readthedocs.io/zh-cn/latest/)**
 
 ## License
 
